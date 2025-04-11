@@ -1,0 +1,38 @@
+<h1>Заказ #{{order.id}}</h1>
+
+<div class="order-details">
+    <div class="order-info">
+        <p><strong>Дата:</strong> {{formatDate order.createdAt}}</p>
+        <p><strong>Статус:</strong> <span class="status-{{order.status}}">{{order.status}}</span></p>
+        <p><strong>Адрес:</strong> {{order.address}}</p>
+        <p><strong>Телефон:</strong> {{order.phone}}</p>
+    </div>
+    
+    <h2>Состав заказа</h2>
+    <table class="order-items-table">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Количество</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each order.Products}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.price}} ₽</td>
+                <td>{{this.OrderItem.quantity}}</td>
+                <td>{{multiply this.price this.OrderItem.quantity}} ₽</td>
+            </tr>
+            {{/each}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3"><strong>Итого:</strong></td>
+                <td><strong>{{order.total}} ₽</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

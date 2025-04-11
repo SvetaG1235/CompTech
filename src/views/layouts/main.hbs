@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} | CompTech</title>
+    <link rel="stylesheet" href="/stylesheets/main.css">
+    <link rel="stylesheet" href="/stylesheets/{{style}}.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="/images/logo.png" alt="CompTech Logo">
+                <h1>CompTech</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/" class="{{#if (eq active 'home')}}active{{/if}}">Главная</a></li>
+                    <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Товары</a></li>
+                    <li><a href="/repair" class="{{#if (eq active 'repair')}}active{{/if}}">Ремонт</a></li>
+                    <li><a href="/master" class="{{#if (eq active 'master')}}active{{/if}}">Мастер</a></li>
+                    {{#if user}}
+                        <li><a href="/orders" class="{{#if (eq active 'orders')}}active{{/if}}">Мои заказы</a></li>
+                        <li><a href="/auth/logout">Выйти ({{user.name}})</a></li>
+                    {{else}}
+                        <li><a href="/auth/login" class="{{#if (eq active 'login')}}active{{/if}}">Вход</a></li>
+                        <li><a href="/auth/register" class="{{#if (eq active 'register')}}active{{/if}}">Регистрация</a></li>
+                    {{/if}}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {{{body}}}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; {{currentYear}} CompTech. Все права защищены.</p>
+        </div>
+    </footer>
+
+    {{#if js}}
+    <script src="/javascripts/{{js}}.js"></script>
+    {{/if}}
+</body>
+</html>

@@ -1,0 +1,28 @@
+<h1>Наши товары</h1>
+
+{{#if (eq user.role 'admin')}}
+<a href="/products/new" class="btn btn-add">Добавить товар</a>
+{{/if}}
+
+<div class="product-grid">
+    {{#each products}}
+    <div class="product-card">
+        <img src="{{this.imageUrl}}" alt="{{this.name}}">
+        <div class="product-info">
+            <h3>{{this.name}}</h3>
+            <p class="price">{{this.price}} ₽</p>
+            <p class="stock">{{this.stock}} в наличии</p>
+            <p class="description">{{this.description}}</p>
+            
+            <div class="product-actions">
+                <button class="btn btn-cart">В корзину</button>
+                {{#if (eq ../user.role 'admin')}}
+                <a href="/products/{{this.id}}/edit" class="btn btn-edit">Редактировать</a>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <p class="no-products">Товары не найдены</p>
+    {{/each}}
+</div>

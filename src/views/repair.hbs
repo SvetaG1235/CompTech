@@ -1,0 +1,38 @@
+<h1>Заявка на ремонт</h1>
+
+{{#if success}}
+<div class="alert alert-success">
+    Ваша заявка успешно отправлена! Номер заявки: #{{requestId}}
+</div>
+{{/if}}
+
+<form method="POST" action="/repair">
+    <div class="form-group">
+        <label for="name">Ваше имя:</label>
+        <input type="text" id="name" name="name" value="{{user.name}}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="phone">Телефон:</label>
+        <input type="tel" id="phone" name="phone" value="{{user.phone}}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="device">Устройство:</label>
+        <select id="device" name="device" required>
+            <option value="">Выберите устройство</option>
+            <option value="notebook">Ноутбук</option>
+            <option value="pc">Компьютер</option>
+            <option value="monitor">Монитор</option>
+            <option value="printer">Принтер</option>
+            <option value="other">Другое</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="problem">Описание проблемы:</label>
+        <textarea id="problem" name="problem" rows="5" required></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-submit">Отправить заявку</button>
+</form>
