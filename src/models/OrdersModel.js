@@ -1,23 +1,23 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../db.js';
-import User from './User.js';
-import Product from './Product.js';
+import { Sequelize } from 'sequelize';
+import sequelizeDB from '../db.js';
+import User from './UserModel.js';
+import Product from './ProductsModel.js';
 
-const Order = sequelize.define('Order', {
+const Order = sequelizeDB.define('Order', {
   status: {
-    type: DataTypes.ENUM('pending', 'completed', 'cancelled'),
+    type: Sequelize.ENUM('pending', 'completed', 'cancelled'),
     defaultValue: 'pending'
   },
   address: {
-    type: DataTypes.STRING,
+    type: Sequelize.STRING,
     allowNull: false
   },
   phone: {
-    type: DataTypes.STRING,
+    type: Sequelize.STRING,
     allowNull: false
   },
   total: {
-    type: DataTypes.DECIMAL(10, 2),
+    type:Sequelize.DECIMAL(10, 2),
     allowNull: false
   }
 });

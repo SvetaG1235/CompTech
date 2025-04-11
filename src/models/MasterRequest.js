@@ -1,22 +1,23 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../db.js';
-import User from './User.js';
 
-const MasterRequest = sequelize.define('MasterRequest', {
+import { Sequelize } from 'sequelize';
+import sequelizeDB from '../db.js';
+import User from './UserModel.js';
+
+const MasterRequest = sequelizeDB.define('MasterRequest', {
   address: {
-    type: DataTypes.STRING,
+    type: Sequelize.STRING,
     allowNull: false
   },
   problem: {
-    type: DataTypes.TEXT,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('new', 'assigned', 'completed'),
+    type: Sequelize.ENUM('new', 'assigned', 'completed'),
     defaultValue: 'new'
   },
   visitDate: {
-    type: DataTypes.DATE
+    type: Sequelize.DATE
   }
 });
 

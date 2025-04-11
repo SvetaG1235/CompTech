@@ -1,18 +1,18 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../db.js';
+import { Sequelize } from 'sequelize';
+import sequelizeDB from '../db.js';
 import User from './User.js';
 
-const RepairRequest = sequelize.define('RepairRequest', {
+const RepairRequest = sequelizeDB.define('RepairRequest', {
   device: {
-    type: DataTypes.STRING,
+    type: Sequelize.STRING,
     allowNull: false
   },
   problem: {
-    type: DataTypes.TEXT,
+    type: Sequelize.TEXT,
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('new', 'in_progress', 'completed'),
+    type: Sequelize.ENUM('new', 'in_progress', 'completed'),
     defaultValue: 'new'
   }
 });

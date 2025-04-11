@@ -1,5 +1,5 @@
 import MasterRequest from '../models/MasterRequest.js';
-import User from '../models/User.js';
+import User from '../models/UserModel.js';
 
 class MasterService {
   async createRequest(userId, requestData) {

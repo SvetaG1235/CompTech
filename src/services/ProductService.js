@@ -1,4 +1,4 @@
-import Product from '../models/Product.js';
+import Product from '../models/ProductsModel.js';
 
 class ProductService {
   async getAll() {

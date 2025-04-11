@@ -1,5 +1,5 @@
-import Order from '../models/Order.js';
-import Product from '../models/Product.js';
+import Order from '../models/OrdersModel.js';
+import Product from '../models/ProductsModel.js';
 
 class OrderService {
   async createOrder(userId, orderData) {

@@ -1,5 +1,5 @@
 import MasterService from '../services/MasterService.js';
-import User from '../models/User.js';
+import User from '../models/UserModel.js';
 
 class MasterController {
   async showForm(req, res) {

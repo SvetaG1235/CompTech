@@ -1,8 +1,5 @@
 <h1>Наши товары</h1>
 
-{{#if (eq user.role 'admin')}}
-<a href="/products/new" class="btn btn-add">Добавить товар</a>
-{{/if}}
 
 <div class="product-grid">
     {{#each products}}
@@ -16,9 +13,6 @@
             
             <div class="product-actions">
                 <button class="btn btn-cart">В корзину</button>
-                {{#if (eq ../user.role 'admin')}}
-                <a href="/products/{{this.id}}/edit" class="btn btn-edit">Редактировать</a>
-                {{/if}}
             </div>
         </div>
     </div>

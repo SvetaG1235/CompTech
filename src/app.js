@@ -5,7 +5,9 @@ import logger from 'morgan';
 import session from 'express-session';
 import { fileURLToPath } from 'url';
 import db from './db.js';
-import indexRouter from './routes/IndexRoutes.js';
+import masterRouter from './routes/MasterRoutes.js';
+import orderRouter from './routes/OrderRoutes.js';
+import repairRoutes from './routes/RepairRoutes.js';
 import authRouter from './routes/AuthRoutes.js';
 import productRouter from './routes/ProductRoutes.js';
 
@@ -39,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/', indexRouter);
+app.use('/', productRouter);
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
 
