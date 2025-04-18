@@ -24,7 +24,6 @@
                         <li><a href="/auth/logout">Выйти ({{user.name}})</a></li>
                     {{else}}
                         <li><a href="/auth/login" class="{{#if (eq active 'login')}}active{{/if}}">Вход</a></li>
-                        <li><a href="/auth/register" class="{{#if (eq active 'register')}}active{{/if}}">Регистрация</a></li>
                     {{/if}}
                 </ul>
             </nav>

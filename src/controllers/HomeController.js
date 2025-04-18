@@ -3,7 +3,6 @@ import ProductService from '../services/ProductService.js';
 class HomeController {
   async index(req, res) {
     try {
-      // Получаем все товары и берем первые 4
       const allProducts = await ProductService.getAllProducts();
       const featuredProducts = allProducts.slice(0, 4);
       
