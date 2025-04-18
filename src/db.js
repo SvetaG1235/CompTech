@@ -2,7 +2,7 @@ import {Sequelize} from "sequelize";
 
 const sequelizeDB = new Sequelize({
     dialect: "sqlite",
-    storage: "Burger.db",
+    storage: "Comp.db",
     define: {
         timestamps: false
     }

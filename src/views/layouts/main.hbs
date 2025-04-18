@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} | CompTech</title>
-    <link rel="stylesheet" href="/stylesheets/main.css">
-    <link rel="stylesheet" href="/stylesheets/{{style}}.css">
+    <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
     <header>
@@ -17,7 +16,7 @@
             <nav>
                 <ul>
                     <li><a href="/" class="{{#if (eq active 'home')}}active{{/if}}">Главная</a></li>
-                    <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Товары</a></li>
+                    <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Наши товары</a></li>
                     <li><a href="/repair" class="{{#if (eq active 'repair')}}active{{/if}}">Ремонт</a></li>
                     <li><a href="/master" class="{{#if (eq active 'master')}}active{{/if}}">Мастер</a></li>
                     {{#if user}}

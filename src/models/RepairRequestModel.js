@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './User.js';
+import User from './UserModel.js';
 
 const RepairRequest = sequelizeDB.define('RepairRequest', {
   device: {

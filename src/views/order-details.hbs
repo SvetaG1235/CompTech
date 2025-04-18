@@ -2,7 +2,7 @@
 
 <div class="order-details">
     <div class="order-info">
-        <p><strong>Дата:</strong> {{formatDate order.createdAt}}</p>
+<p><strong>Дата:</strong> {{order.createdAt.toISOString().split('T')[0]}}</p>
         <p><strong>Статус:</strong> <span class="status-{{order.status}}">{{order.status}}</span></p>
         <p><strong>Адрес:</strong> {{order.address}}</p>
         <p><strong>Телефон:</strong> {{order.phone}}</p>
@@ -24,7 +24,7 @@
                 <td>{{this.name}}</td>
                 <td>{{this.price}} ₽</td>
                 <td>{{this.OrderItem.quantity}}</td>
-                <td>{{multiply this.price this.OrderItem.quantity}} ₽</td>
+                <td>{{{this.price * this.OrderItem.quantity}}} ₽</td>
             </tr>
             {{/each}}
         </tbody>

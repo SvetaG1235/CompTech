@@ -42,6 +42,26 @@ class AuthController {
     req.session.destroy();
     res.redirect('/');
   }
+  async showRegister(req, res) {
+    res.render('register', { 
+      title: 'Регистрация',
+      error: req.query.error 
+    });
+  }
+  
+  async register(req, res) {
+    try {
+      await AuthService.register(req.body);
+      res.redirect('/auth/login');
+    } catch (error) {
+      res.render('register', {
+        title: 'Регистрация',
+        error: 'Ошибка регистрации',
+        formData: req.body
+      });
+    }
+  }
+  
 }
 
 export default new AuthController();

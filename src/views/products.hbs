@@ -1,22 +1,38 @@
-<h1>Наши товары</h1>
-
-
-<div class="product-grid">
-    {{#each products}}
-    <div class="product-card">
-        <img src="{{this.imageUrl}}" alt="{{this.name}}">
-        <div class="product-info">
-            <h3>{{this.name}}</h3>
-            <p class="price">{{this.price}} ₽</p>
-            <p class="stock">{{this.stock}} в наличии</p>
-            <p class="description">{{this.description}}</p>
-            
-            <div class="product-actions">
-                <button class="btn btn-cart">В корзину</button>
+<div class="products-page">
+  <h1>{{title}}</h1>
+  
+  <div class="categories">
+    {{#each menuData}}
+      <section class="category">
+        <h2 class="category__title">{{this.[0]}}</h2>
+        
+        <div class="products-grid">
+          {{#each this.[1]}}
+            <div class="product-card">
+              <div class="product-card__content">
+                <h3 class="product-card__title">{{this.name}}</h3>
+                
+                <div class="product-card__info">
+                  <p class="product-card__desc">{{this.description}}</p>
+                  
+                  <div class="product-card__meta">
+                    <span class="product-card__price">{{this.price}} ₽</span>
+                    <span class="product-card__stock {{#unless this.stock}}out-of-stock{{/unless}}">
+                      {{#if this.stock}}{{this.stock}} шт.{{else}}Нет в наличии{{/if}}
+                    </span>
+                  </div>
+                </div>
+                
+                <button class="btn btn--cart" 
+                        data-id="{{this.id}}"
+                        {{#unless this.stock}}disabled{{/unless}}>
+                  {{#if this.stock}}В корзину{{else}}Недоступно{{/if}}
+                </button>
+              </div>
             </div>
+          {{/each}}
         </div>
-    </div>
-    {{else}}
-    <p class="no-products">Товары не найдены</p>
+      </section>
     {{/each}}
+  </div>
 </div>

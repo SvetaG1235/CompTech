@@ -22,7 +22,15 @@ const Order = sequelizeDB.define('Order', {
   }
 });
 
-Order.belongsTo(User);
-Order.belongsToMany(Product, { through: 'OrderItems' });
+Order.belongsToMany(Product, { 
+  through: 'OrderItems',
+  foreignKey: 'orderId',
+  otherKey: 'productId'
+});
+Product.belongsToMany(Order, {
+  through: 'OrderItems',
+  foreignKey: 'productId',
+  otherKey: 'orderId'
+});
 
 export default Order;
