@@ -22,6 +22,7 @@
                     {{#if user}}
                         <li><a href="/orders" class="{{#if (eq active 'orders')}}active{{/if}}">Мои заказы</a></li>
                         <li><a href="/auth/logout">Выйти ({{user.name}})</a></li>
+                        <li><a href="/consultation" class="{{#if (eq active 'consultation')}}active{{/if}}">Консультация</a></li>
                     {{else}}
                         <li><a href="/auth/login" class="{{#if (eq active 'login')}}active{{/if}}">Вход</a></li>
                     {{/if}}

@@ -1,27 +1,38 @@
-import Order from '../models/OrdersModel.js';
+import Order from '../models/OrderModel.js';
 import Product from '../models/ProductsModel.js';
+import CartService from './CartService.js';
 
 class OrderService {
-  async createOrder(userId, orderData) {
-    const { products, ...orderDetails } = orderData;
-    
-    const order = await Order.create({
-      ...orderDetails,
-      userId
+  static async createOrder(userId, cartItems, orderData) {
+    const products = await Product.findAll({
+      where: { id: cartItems.map(item => item.productId) }
     });
 
-    if (products && products.length) {
-      const productInstances = await Product.findAll({
-        where: { id: products.map(p => p.id) }
-      });
-      
-      await order.addProducts(productInstances);
-    }
+    const order = await Order.create({
+      userId,
+      total: cartItems.reduce((sum, item) => {
+        const product = products.find(p => p.id == item.productId);
+        return sum + (product.price * item.quantity);
+      }, 0),
+      address: orderData.address,
+      phone: orderData.phone
+    });
+
+    await order.addProducts(products.map(product => {
+      const item = cartItems.find(i => i.productId == product.id);
+      return {
+        id: product.id,
+        through: {
+          quantity: item.quantity,
+          price: product.price
+        }
+      };
+    }));
 
     return order;
   }
 
-  async getUserOrders(userId) {
+  static async getUserOrders(userId) {
     return Order.findAll({
       where: { userId },
       include: [Product]

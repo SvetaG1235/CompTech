@@ -1,0 +1,28 @@
+<div class="cart-page">
+  <h1>Ваша корзина</h1>
+  
+  {{#if cartItems.length}}
+    <div class="cart-items">
+      {{#each cartItems}}
+        <div class="cart-item">
+          <h3>{{this.product.name}}</h3>
+          <p>Цена: {{this.product.price}} ₽ x {{this.quantity}}</p>
+          <p>Итого: {{multiply this.product.price this.quantity}} ₽</p>
+          <button class="remove-from-cart" data-id="{{this.product.id}}">Удалить</button>
+        </div>
+      {{/each}}
+    </div>
+    
+    <div class="cart-total">
+      <h3>Общая сумма: {{total}} ₽</h3>
+    </div>
+    
+    <form method="POST" action="/orders" class="order-form">
+      <input type="text" name="address" placeholder="Адрес доставки" required>
+      <input type="tel" name="phone" placeholder="Телефон" required>
+      <button type="submit">Оформить заказ</button>
+    </form>
+  {{else}}
+    <p>Ваша корзина пуста</p>
+  {{/if}}
+</div>

@@ -1,50 +1,35 @@
 import OrderService from '../services/OrderService.js';
+import CartService from '../services/CartService.js';
 
 class OrderController {
-  async create(req, res) {
-    // Инициализация корзины
-    if (!req.session.cart) {
-      req.session.cart = [];
-    }
-
+  static async createOrder(req, res) {
     try {
-      // Форматируем данные перед передачей в шаблон
-      const order = await OrderService.createOrder(req.session.user.id, req.body);
-      const formattedOrder = {
-        ...order.toJSON(),
-        formattedDate: order.createdAt.toISOString().split('T')[0]
-      };
+      if (!req.session.cart?.length) {
+        throw new Error('Корзина пуста');
+      }
+
+      const order = await OrderService.createOrder(
+        req.session.user.id,
+        req.session.cart,
+        req.body
+      );
+
+      CartService.clearCart(req);
       
-      res.status(201).json(formattedOrder);
+      res.status(201).json(order);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async getUserOrders(req, res) {
+    try {
+      const orders = await OrderService.getUserOrders(req.session.user.id);
+      res.json(orders);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   }
-
-  async getUserOrders(req, res) {
-    try {
-      const orders = (await OrderService.getUserOrders(req.session.user.id)).map(order => ({
-        ...order.get({ plain: true }),
-        formattedDate: order.createdAt.toLocaleDateString(),
-        products: order.Products.map(product => ({
-          ...product.get({ plain: true }),
-          total: product.price * product.OrderItem.quantity
-        }))
-      }));
-      
-      res.render('orders', {
-        title: 'Мои заказы',
-        orders,
-        user: req.session.user
-      });
-    } catch (error) {
-      res.status(500).render('error', {
-        title: 'Ошибка',
-        message: 'Не удалось загрузить заказы'
-      });
-    }
-  }
-  
 }
 
 export default new OrderController();

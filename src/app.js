@@ -10,6 +10,7 @@ import db from './db.js';
 // Импорт роутеров
 import ProductService from './services/ProductService.js';
 import authRouter from './routes/AuthRoutes.js';
+import consultationRouter from './routes/ConsultationRoutes.js';
 import masterRouter from './routes/MasterRoutes.js';
 import orderRouter from './routes/OrderRoutes.js';
 import repairRouter from './routes/RepairRoutes.js';
@@ -31,6 +32,7 @@ const hbs = create({
     gt: (a, b) => a > b,
     lte: (a, b) => a <= b,
     gte: (a, b) => a >= b,
+    multiply: (a, b) => a * b,
     and() {
       return Array.prototype.every.call(arguments, Boolean);
     },
@@ -81,6 +83,7 @@ app.use('/products', productRouter);
 app.use('/auth', authRouter);
 app.use('/master', masterRouter);
 app.use('/orders', orderRouter);
+app.use('/consultation', consultationRouter)
 app.use('/repair', repairRouter);
 app.use('/products', productRouter);
 
