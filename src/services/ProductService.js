@@ -167,20 +167,10 @@ class ProductService {
         description: 'DDR4 3200MHz, 2x8GB'
       }
     ];
-
-    try {
-      await Product.destroy({ where: {} });
-      
-      const createdProducts = await Product.bulkCreate(Products);
-      console.log(`Добавлено ${createdProducts.length} тестовых товаров`);
-      
-      return createdProducts;
-    } catch (error) {
-      console.error('Ошибка при заполнении базы тестовыми товарами:', error);
-      throw new Error('Не удалось заполнить базу тестовыми данными');
-    }
+  
+    await Product.destroy({ where: {} });
+    return await Product.bulkCreate(products);
   }
-
 
   static async searchProducts(query) {
     try {

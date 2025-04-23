@@ -1,0 +1,25 @@
+{{> admin/header title="Админпанель"}}
+
+<div class="dashboard">
+  <div class="stats">
+    <div class="stat-card">
+      <h3>Товары</h3>
+      <a href="/admin/products">{{products.length}}+</a>
+    </div>
+    <!-- Другие карточки -->
+  </div>
+
+  <div class="recent-activity">
+    <section>
+      <h3>Последние товары</h3>
+      {{> admin/products-table products=products}}
+    </section>
+    
+    <section>
+      <h3>Последние консультации</h3>
+      {{> admin/consultations-table consultations=consultations}}
+    </section>
+  </div>
+</div>
+
+{{> admin/footer}}

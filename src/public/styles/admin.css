@@ -1,0 +1,46 @@
+.admin-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    min-height: 100vh;
+  }
+  
+  .admin-sidebar {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+  }
+  
+  .admin-content {
+    padding: 20px;
+  }
+  
+  /* Таблицы */
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .admin-table th, 
+  .admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .admin-table tr:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Формы */
+  .admin-form {
+    max-width: 500px;
+    margin: 20px 0;
+  }
+  
+  .admin-form input,
+  .admin-form select,
+  .admin-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+  }

@@ -8,40 +8,32 @@ class AuthController {
     });
   }
 
-  async login(req, res) {
+  static async login(req, res) {
+    const { email, password } = req.body;
+    
     try {
-      const { email, password } = req.body;
-      const user = await AuthService.login(email, password);
+      const user = await User.findOne({ where: { email } });
+      if (!user) return res.status(401).render('login', { error: 'Неверные данные' });
 
-      if (!user) {
-        return res.render('login', {
-          title: 'Вход',
-          error: 'Неверный email или пароль',
-          email
-        });
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) return res.status(401).render('login', { error: 'Неверные данные' });
+
+      req.session.user = user;
+      
+      if (user.role === 'admin') {
+        return res.redirect('/admin');
       }
-
-      req.session.user = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      };
-
-      res.redirect('/');
+      res.redirect('/profile');
     } catch (error) {
-      res.render('login', {
-        title: 'Вход',
-        error: 'Ошибка сервера',
-        email: req.body.email
-      });
+      res.status(500).render('login', { error: 'Ошибка сервера' });
     }
   }
 
-  async logout(req, res) {
+  static async logout(req, res) {
     req.session.destroy();
     res.redirect('/');
   }
+
   async showRegister(req, res) {
     res.render('register', { 
       title: 'Регистрация',
@@ -60,6 +52,9 @@ class AuthController {
         formData: req.body
       });
     }
+  }
+  static async resetPassword(req, res) {
+    res.render('forgotpass')
   }
   
 }

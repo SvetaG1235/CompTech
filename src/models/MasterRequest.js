@@ -1,7 +1,5 @@
-
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './UserModel.js';
 
 const MasterRequest = sequelizeDB.define('MasterRequest', {
   address: {
@@ -18,10 +16,15 @@ const MasterRequest = sequelizeDB.define('MasterRequest', {
   },
   visitDate: {
     type: Sequelize.DATE
+  },
+  clientId: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  masterId: {
+    type: Sequelize.INTEGER,
+    allowNull: true
   }
 });
-
-MasterRequest.belongsTo(User, { as: 'Client' });
-MasterRequest.belongsTo(User, { as: 'Master' });
 
 export default MasterRequest;

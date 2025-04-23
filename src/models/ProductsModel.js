@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import sequelizeDB from '../db.js';
-
+import Order from './OrdersModel.js';
 const Product = sequelizeDB.define('Product', {
     id: {
         type: Sequelize.INTEGER,
@@ -37,4 +37,5 @@ const Product = sequelizeDB.define('Product', {
     timestamps: true
 });
 
+Product.belongsToMany(Order, { through: 'OrderItems' });
 export default Product;

@@ -1,8 +1,8 @@
 import OrderService from '../services/OrderService.js';
 import CartService from '../services/CartService.js';
 
-class OrderController {
-  static async createOrder(req, res) {
+export class OrderController {
+  async createOrder(req, res) {
     try {
       if (!req.session.cart?.length) {
         throw new Error('Корзина пуста');
@@ -22,7 +22,7 @@ class OrderController {
     }
   }
 
-  static async getUserOrders(req, res) {
+  async getUserOrders(req, res) {
     try {
       const orders = await OrderService.getUserOrders(req.session.user.id);
       res.json(orders);

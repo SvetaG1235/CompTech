@@ -16,6 +16,7 @@ import orderRouter from './routes/OrderRoutes.js';
 import repairRouter from './routes/RepairRoutes.js';
 import productRouter from './routes/ProductRoutes.js';
 import homeRouter from './routes/HomeRoutes.js';
+import adminRoutes from './routes/AdminRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -79,6 +80,7 @@ app.use((req, res, next) => {
 
 // Роуты
 app.use('/', homeRouter);
+app.use('/admin', adminRoutes);
 app.use('/products', productRouter);
 app.use('/auth', authRouter);
 app.use('/master', masterRouter);

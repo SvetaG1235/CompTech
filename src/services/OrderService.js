@@ -1,4 +1,4 @@
-import Order from '../models/OrderModel.js';
+import Order from '../models/OrdersModel.js';
 import Product from '../models/ProductsModel.js';
 import CartService from './CartService.js';
 

@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
+import Order from './OrdersModel.js';
+import Product from './ProductsModel.js';
 
 const OrderItem = sequelizeDB.define('OrderItem', {
   quantity: {
@@ -12,5 +14,8 @@ const OrderItem = sequelizeDB.define('OrderItem', {
     allowNull: false
   }
 });
+
+OrderItem.belongsTo(Order);
+OrderItem.belongsTo(Product);
 
 export default OrderItem;

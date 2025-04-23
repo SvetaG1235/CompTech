@@ -1,22 +1,46 @@
-import Order from '../models/OrdersModel.js';
-import RepairRequest from '../models/RepairRequestModel.js';
-import MasterRequest from '../models/MasterRequest.js';
+import AdminService from '../services/AdminService.js';
 
 class AdminController {
-  async dashboard(req, res) {
-    const [orders, repairs, masterRequests] = await Promise.all([
-      Order.findAll(),
-      RepairRequest.findAll(),
-      MasterRequest.findAll()
-    ]);
-    
-    res.render('admin', {
-      title: 'Админ панель',
-      orders,
-      repairs,
-      masterRequests
-    });
+  static async getProducts(req, res) {
+    try {
+      const products = await AdminService.getAllProducts();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async updateMasterRequest(req, res) {
+    try {
+      const { id } = req.params;
+      const { status, reason } = req.body;
+      
+      const updatedRequest = await AdminService.updateMasterRequest(id, {
+        status,
+        rejectionReason: reason
+      });
+      
+      res.json(updatedRequest);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async updateConsultation(req, res) {
+    try {
+      const { id } = req.params;
+      const { status, comment } = req.body;
+      
+      const updatedConsultation = await AdminService.updateConsultation(id, {
+        status,
+        adminComment: comment
+      });
+      
+      res.json(updatedConsultation);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 }
 
-export default new AdminController();
+export default AdminController;
