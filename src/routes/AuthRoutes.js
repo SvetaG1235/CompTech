@@ -1,13 +1,15 @@
 import express from 'express';
-import AuthController from '../controllers/AuthController.js';
+import authController from '../controllers/AuthController.js';
 
 const router = express.Router();
 
+// Роуты аутентификации
+router.get('/login', authController.showLogin);
+router.post('/login', authController.login);
+router.get('/logout', authController.logout);
 
-router.get('/login', AuthController.showLogin);
-router.post('/login', AuthController.login);
-router.get('/logout', AuthController.logout);
-router.get('/register', AuthController.showRegister);
-router.post('/register', AuthController.register);
+// Роуты регистрации
+router.get('/register', authController.showRegister);
+router.post('/register', authController.register);
 
 export default router;

@@ -1,62 +1,102 @@
-import AuthService from '../services/AuthService.js';
+import { User } from '../models/index.js';
+import bcrypt from 'bcrypt';
 
 class AuthController {
-  async showLogin(req, res) {
+  // Показ формы входа
+  showLogin(req, res) {
     res.render('login', { 
-      title: 'Вход',
+      title: 'Вход в систему',
       error: req.query.error 
     });
   }
 
-  static async login(req, res) {
-    const { email, password } = req.body;
-    
+  // Обработка входа
+  async login(req, res) {
     try {
+      const { email, password } = req.body;
       const user = await User.findOne({ where: { email } });
-      if (!user) return res.status(401).render('login', { error: 'Неверные данные' });
+
+      if (!user) {
+        return res.render('login', {
+          title: 'Вход в систему',
+          error: 'Пользователь не найден'
+        });
+      }
 
       const validPassword = await bcrypt.compare(password, user.password);
-      if (!validPassword) return res.status(401).render('login', { error: 'Неверные данные' });
+      if (!validPassword) {
+        return res.render('login', {
+          title: 'Вход в систему',
+          error: 'Неверный пароль'
+        });
+      }
 
       req.session.user = user;
       
       if (user.role === 'admin') {
         return res.redirect('/admin');
       }
-      res.redirect('/profile');
+      res.redirect('/');
     } catch (error) {
-      res.status(500).render('login', { error: 'Ошибка сервера' });
-    }
-  }
-
-  static async logout(req, res) {
-    req.session.destroy();
-    res.redirect('/');
-  }
-
-  async showRegister(req, res) {
-    res.render('register', { 
-      title: 'Регистрация',
-      error: req.query.error 
-    });
-  }
-  
-  async register(req, res) {
-    try {
-      await AuthService.register(req.body);
-      res.redirect('/auth/login');
-    } catch (error) {
-      res.render('register', {
-        title: 'Регистрация',
-        error: 'Ошибка регистрации',
-        formData: req.body
+      console.error('Login error:', error);
+      res.render('login', {
+        title: 'Вход в систему',
+        error: 'Произошла ошибка при входе'
       });
     }
   }
-  static async resetPassword(req, res) {
-    res.render('forgotpass')
+
+  // Выход
+  logout(req, res) {
+    req.session.destroy(() => {
+      res.redirect('/');
+    });
   }
-  
+
+  // Показ формы регистрации
+  showRegister(req, res) {
+    res.render('register', {
+      title: 'Регистрация',
+      error: req.query.error
+    });
+  }
+
+  // Обработка регистрации
+  async register(req, res) {
+    try {
+      const { name, email, password, phone } = req.body;
+      
+      // Проверка на существующего пользователя
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.render('register', {
+          title: 'Регистрация',
+          error: 'Пользователь с таким email уже существует'
+        });
+      }
+
+      // Хеширование пароля
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Создание пользователя
+      await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        role: 'user' // По умолчанию обычный пользователь
+      });
+      
+      // Перенаправление после успешной регистрации
+      res.redirect('/auth/login?success=Регистрация прошла успешно');
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.render('register', {
+        title: 'Регистрация',
+        error: 'Произошла ошибка при регистрации'
+      });
+    }
+  }
 }
 
 export default new AuthController();
