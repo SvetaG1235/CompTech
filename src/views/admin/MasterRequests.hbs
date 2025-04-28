@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявки на вызов мастера | CompTech</title>
+    <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <div class="logo">
+                <img src="/images/logo.png" alt="CompTech Logo">
+                <h1>Заявки на вызов мастера</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/admin/dashboard">Назад в панель</a></li>
+                    <li><a href="/auth/logout">Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="master-requests-admin">
+            <div class="controls">
+                <button id="assignMasterBtn" class="btn btn-primary">Назначить мастера</button>
+                <select id="masterSelect" class="filter-select">
+                    <option value="">Выберите мастера</option>
+                    {{#each masters}}
+                    <option value="{{this.id}}">{{this.name}} ({{this.specialization}})</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Адрес</th>
+                        <th>Проблема</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Мастер</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each requests}}
+                    <tr>
+                        <td><input type="checkbox" class="request-checkbox" data-id="{{this.id}}"></td>
+                        <td>{{this.id}}</td>
+                        <td>{{this.User.name}}<br>{{this.User.phone}}</td>
+                        <td>{{this.address}}</td>
+                        <td class="problem-cell">{{this.problem}}</td>
+                        <td>{{formatDate this.createdAt}}</td>
+                        <td>
+                            <span class="status-badge status-{{this.status}}">
+                                {{#if (eq this.status 'new')}}Новая{{/if}}
+                                {{#if (eq this.status 'assigned')}}Назначена{{/if}}
+                                {{#if (eq this.status 'completed')}}Завершена{{/if}}
+                            </span>
+                        </td>
+                        <td>
+                            {{#if this.Master}}
+                            {{this.Master.name}} ({{this.Master.phone}})
+                            {{else}}
+                            Не назначен
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            <div id="assignModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Назначение мастера</h3>
+                    <div class="modal-body">
+                        <p>Будут назначены <span id="requestsCount">0</span> заявок</p>
+                        <div class="form-group">
+                            <label for="modalMasterSelect">Мастер:</label>
+                            <select id="modalMasterSelect" class="form-control">
+                                <option value="">Выберите мастера</option>
+                                {{#each masters}}
+                                <option value="{{this.id}}">{{this.name}} ({{this.specialization}})</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="visitDate">Дата визита:</label>
+                            <input type="datetime-local" id="visitDate" class="form-control">
+                        </div>
+                        <button id="confirmAssignBtn" class="btn btn-primary">Подтвердить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="admin-footer">
+        <div class="container">
+            <p>&copy; {{currentYear}} CompTech. Административная панель.</p>
+        </div>
+    </footer>
+
+    <script>document.getElementById('confirmAssignBtn').addEventListener('click', async () => {
+  try {
+    const selectedRequests = Array.from(document.querySelectorAll('.request-checkbox:checked'))
+      .map(el => el.dataset.id);
+    
+    if (selectedRequests.length === 0) {
+      alert('Выберите хотя бы одну заявку');
+      return;
+    }
+    
+    const masterId = document.getElementById('modalMasterSelect').value;
+    const visitDate = document.getElementById('visitDate').value;
+    
+    if (!masterId) {
+      alert('Выберите мастера');
+      return;
+    }
+    
+    const response = await fetch('/admin/masterRequests/bulk', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ids: selectedRequests,
+        masterId,
+        visitDate
+      })
+    });
+    
+    if (!response.ok) throw new Error('Ошибка при назначении');
+    
+    location.reload();
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+});</script>
+</body>
+</html>

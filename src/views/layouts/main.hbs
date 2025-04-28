@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} | CompTech</title>
     <link rel="stylesheet" href="/styles/styles.css">
+    {{#if (eq user.role 'admin')}}
+        <link rel="stylesheet" href="/styles/admin.css">
+    {{/if}}
 </head>
 <body>
     <header>
@@ -16,12 +19,24 @@
             <nav>
                 <ul>
                     <li><a href="/" class="{{#if (eq active 'home')}}active{{/if}}">Главная</a></li>
-                    <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Наши товары</a></li>
-                    <li><a href="/repair" class="{{#if (eq active 'repair')}}active{{/if}}">Ремонт</a></li>
-                    <li><a href="/consultation" class="{{#if (eq active 'consultation')}}active{{/if}}">Консультация</a></li>
+                    
+                    {{#if (eq user.role 'admin')}}
+                        <!-- Только для админов -->
+                        <li><a href="/admin/dashboard" class="{{#if (eq active 'dashboard')}}active{{/if}}">Панель</a></li>
+                        <li><a href="/admin/products" class="{{#if (eq active 'admin-products')}}active{{/if}}">Товары</a></li>
+                        <li><a href="/admin/consultations" class="{{#if (eq active 'admin-consultations')}}active{{/if}}">Консультации</a></li>
+                        <li><a href="/admin/master-requests" class="{{#if (eq active 'admin-master')}}active{{/if}}">Мастера</a></li>
+                    {{else}}
+                        <!-- Для обычных пользователей -->
+                        <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Товары</a></li>
+                        <li><a href="/repair" class="{{#if (eq active 'repair')}}active{{/if}}">Ремонт</a></li>
+                        <li><a href="/consultation" class="{{#if (eq active 'consultation')}}active{{/if}}">Консультация</a></li>
+                        {{#if user}}
+                            <li><a href="/master" class="{{#if (eq active 'master')}}active{{/if}}">Мастер</a></li>
+                        {{/if}}
+                    {{/if}}
+
                     {{#if user}}
-                        <li><a href="/orders" class="{{#if (eq active 'orders')}}active{{/if}}">Мои заказы</a></li>
-                        <li><a href="/master" class="{{#if (eq active 'master')}}active{{/if}}">Вызов мастера</a></li>
                         <li><a href="/auth/logout">Выйти ({{user.name}})</a></li>
                     {{else}}
                         <li><a href="/auth/login" class="{{#if (eq active 'login')}}active{{/if}}">Вход</a></li>
@@ -37,7 +52,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; {{currentYear}} CompTech. Все права защищены.</p>
+            <p>&copy; {{currentYear}} CompTech</p>
         </div>
     </footer>
 

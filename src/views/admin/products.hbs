@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление товарами | CompTech</title>
+    <title>Управление заказами | CompTech</title>
     <link rel="stylesheet" href="/styles/admin.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <div class="container">
             <div class="logo">
                 <img src="/images/logo.png" alt="CompTech Logo">
-                <h1>Управление товарами</h1>
+                <h1>Управление заказами</h1>
             </div>
             <nav>
                 <ul>
@@ -23,82 +23,121 @@
     </header>
 
     <main class="admin-container">
-        <div class="products-admin">
-            <div class="admin-actions">
-                <button id="addProductBtn" class="btn btn-primary">+ Добавить товар</button>
-            </div>
-            <div id="productFormContainer" class="product-form" style="display: none;">
-                <h3>Добавить новый товар</h3>
-                <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="name">Название:</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="category">Категория:</label>
-                        <select id="category" name="category" required>
-                            <option value="Ноутбуки">Ноутбуки</option>
-                            <option value="Комплектующие">Комплектующие</option>
-                            <option value="Периферия">Периферия</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="price">Цена (₽):</label>
-                        <input type="number" id="price" name="price" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="stock">Количество:</label>
-                        <input type="number" id="stock" name="stock" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description">Описание:</label>
-                        <textarea id="description" name="description" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="image">Изображение:</label>
-                        <input type="file" id="image" name="image" accept="image/*">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-submit">Сохранить</button>
-                    <button type="button" id="cancelFormBtn" class="btn btn-cancel">Отмена</button>
-                </form>
+        <div class="orders-admin">
+            <div class="filters">
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">Все статусы</option>
+                    <option value="pending">Ожидает оплаты</option>
+                    <option value="processing">В обработке</option>
+                    <option value="shipped">Отправлен</option>
+                    <option value="delivered">Доставлен</option>
+                    <option value="cancelled">Отменен</option>
+                </select>
+                <input type="date" id="dateFromFilter" class="filter-date" placeholder="С">
+                <input type="date" id="dateToFilter" class="filter-date" placeholder="По">
+                <button id="applyFiltersBtn" class="btn btn-primary">Применить</button>
+                <button id="resetFiltersBtn" class="btn btn-secondary">Сбросить</button>
             </div>
 
-            <div class="product-list">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Название</th>
-                            <th>Категория</th>
-                            <th>Цена</th>
-                            <th>Остаток</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each products}}
-                        <tr>
-                            <td>{{this.id}}</td>
-                            <td>{{this.name}}</td>
-                            <td>{{this.category}}</td>
-                            <td>{{this.price}} ₽</td>
-                            <td>{{this.stock}} шт.</td>
-                            <td class="actions">
-                                <a href="/admin/products/{{this.id}}/edit" class="btn-edit">✏️</a>
-                                <form action="/admin/products/{{this.id}}/delete" method="POST" class="delete-form">
-                                    <button type="submit" class="btn-delete">🗑️</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Дата</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th>Товары</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each orders}}
+                    <tr data-status="{{this.status}}">
+                        <td>#{{this.id}}</td>
+                        <td>
+                            {{this.User.name}}<br>
+                            {{this.User.phone}}<br>
+                            {{this.address}}
+                        </td>
+                        <td>{{formatDate this.createdAt}}</td>
+                        <td>{{this.total}} ₽</td>
+                        <td>
+                            <select class="status-select" data-id="{{this.id}}">
+                                <option value="pending" {{#if (eq this.status 'pending')}}selected{{/if}}>Ожидает оплаты</option>
+                                <option value="processing" {{#if (eq this.status 'processing')}}selected{{/if}}>В обработке</option>
+                                <option value="shipped" {{#if (eq this.status 'shipped')}}selected{{/if}}>Отправлен</option>
+                                <option value="delivered" {{#if (eq this.status 'delivered')}}selected{{/if}}>Доставлен</option>
+                                <option value="cancelled" {{#if (eq this.status 'cancelled')}}selected{{/if}}>Отменен</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-view-items" data-id="{{this.id}}">Показать ({{this.Products.length}})</button>
+                        </td>
+                        <td>
+                            <button class="btn-edit" data-id="{{this.id}}">✏️</button>
+                            <a href="/admin/orders/{{this.id}}/invoice" class="btn-invoice">📄</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            <!-- Модальное окно товаров -->
+            <div id="itemsModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Товары в заказе #<span id="orderId"></span></h3>
+                    <div class="modal-body">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Цена</th>
+                                    <th>Кол-во</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsList">
+                                <!-- Товары будут добавлены через JS -->
+                            </tbody>
+                        </table>
+                        <div class="order-total">
+                            <strong>Итого: </strong><span id="orderTotal"></span> ₽
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно редактирования -->
+            <div id="editOrderModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Редактирование заказа #<span id="editOrderId"></span></h3>
+                    <div class="modal-body">
+                        <form id="editOrderForm">
+                            <div class="form-group">
+                                <label for="editStatus">Статус:</label>
+                                <select id="editStatus" class="form-control">
+                                    <option value="pending">Ожидает оплаты</option>
+                                    <option value="processing">В обработке</option>
+                                    <option value="shipped">Отправлен</option>
+                                    <option value="delivered">Доставлен</option>
+                                    <option value="cancelled">Отменен</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTracking">Трек-номер:</label>
+                                <input type="text" id="editTracking" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="editNotes">Комментарий:</label>
+                                <textarea id="editNotes" rows="3" class="form-control"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -109,6 +148,6 @@
         </div>
     </footer>
 
-    <script src="/javascripts/admin-products.js"></script>
+    <script src="/javascripts/admin-orders.js"></script>
 </body>
 </html>

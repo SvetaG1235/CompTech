@@ -7,14 +7,12 @@ import RepairRequest from './RepairRequestModel.js';
 import MasterRequest from './MasterRequest.js';
 import Consultation from './Consultation.js';
 
-// Убрали дублирование алиасов
 User.hasMany(MasterRequest, { foreignKey: 'clientId' });
 User.hasMany(MasterRequest, { foreignKey: 'masterId' });
 
 MasterRequest.belongsTo(User, { foreignKey: 'clientId', as: 'RequestingClient' });
 MasterRequest.belongsTo(User, { foreignKey: 'masterId', as: 'AssignedMaster' });
 
-// Остальные ассоциации
 User.hasMany(Order);
 User.hasMany(RepairRequest);
 User.hasMany(Consultation);

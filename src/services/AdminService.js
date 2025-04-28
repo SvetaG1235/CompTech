@@ -1,78 +1,113 @@
 import {
-    Product,
-    Order,
-    RepairRequest,
-    MasterRequest,
-    Consultation
-  } from '../models/index.js';
-  
-  class AdminService {
-    static async getAllProducts() {
-      return await Product.findAll();
-    }
-  
-    static async createProduct(productData) {
-      return await Product.create(productData);
-    }
-  
-    static async updateProduct(id, updateData) {
-      await Product.update(updateData, { where: { id } });
-      return await Product.findByPk(id);
-    }
-  
-    static async deleteProduct(id) {
-      return await Product.destroy({ where: { id } });
-    }
-  
-    static async getAllOrders() {
-      return await Order.findAll({
-        include: ['User', 'Products']
-      });
-    }
-  
-    static async getRepairRequests() {
-      return await RepairRequest.findAll({
-        include: ['User']
-      });
-    }
-    static async getMasterRequests() {
-        return await MasterRequest.findAll({
-          include: [
-            {
-              association: 'RequestingClient',
-              attributes: ['id', 'name', 'phone']
-            },
-            {
-              association: 'AssignedMaster',
-              attributes: ['id', 'name', 'phone'],
-              required: false
-            }
-          ]
-        });
-      }
-      
-      static async updateMasterRequest(id, data) {
-        await MasterRequest.update(data, { where: { id } });
-        return await MasterRequest.findByPk(id, {
-          include: [
-            {
-              association: 'RequestingClient',
-              attributes: ['id', 'name', 'phone']
-            }
-          ]
-        });
-      }
+  Product,
+  MasterRequest,
+  Consultation,
+  User
+} from '../models/index.js';
 
-    static async getConsultations() {
-      return await Consultation.findAll({
-        include: ['User']
-      });
-    }
-  
-    static async updateConsultation(id, data) {
-      await Consultation.update(data, { where: { id } });
-      return await Consultation.findByPk(id);
-    }
+class AdminService {
+  static async getPaginatedProducts(page = 1, limit = 10) {
+    const offset = (page - 1) * limit;
+    
+    const { count, rows } = await Product.findAndCountAll({
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']]
+    });
+    
+    return {
+      products: rows,
+      total: count
+    };
   }
-  
-  export default AdminService;
+
+  static async createProduct(productData) {
+    return Product.create(productData);
+  }
+
+  static async updateProduct(id, updateData) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error('Товар не найден');
+    
+    return product.update(updateData);
+  }
+
+  static async deleteProduct(id) {
+    const product = await Product.findByPk(id);
+    if (!product) throw new Error('Товар не найден');
+    
+    return product.destroy();
+  }
+
+  static async getMasterRequests(status = 'all') {
+    const where = {};
+    if (status !== 'all') where.status = status;
+    
+    return MasterRequest.findAll({
+      where,
+      include: [
+        {
+          model: User,
+          as: 'RequestingClient',
+          attributes: ['id', 'name', 'phone']
+        },
+        {
+          model: User,
+          as: 'AssignedMaster',
+          attributes: ['id', 'name', 'phone'],
+          required: false
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+  }
+
+  static async bulkUpdateMasterRequests(ids, updateData) {
+    return MasterRequest.update(updateData, {
+      where: { id: ids },
+      returning: true
+    });
+  }
+
+  static async getAvailableMasters() {
+    return User.findAll({
+      where: { role: 'master' },
+      attributes: ['id', 'name', 'specialization']
+    });
+  }
+
+  static async getConsultations(status = 'all') {
+    const where = {};
+    if (status !== 'all') where.status = status;
+    
+    return Consultation.findAll({
+      where,
+      include: [{
+        model: User,
+        attributes: ['id', 'name', 'email', 'phone']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+  }
+
+  static async getDashboardStats() {
+    const [productsCount, consultationsCount, masterRequestsCount, recentProducts] = await Promise.all([
+      Product.count(),
+      Consultation.count(),
+      MasterRequest.count(),
+      Product.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: 5
+      })
+    ]);
+    
+    return {
+      productsCount,
+      consultationsCount,
+      masterRequestsCount,
+      recentProducts
+    };
+  }
+}
+
+export default AdminService;
