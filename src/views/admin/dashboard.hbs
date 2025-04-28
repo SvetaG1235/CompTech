@@ -1,25 +1,106 @@
-{{> admin/header title="Админпанель"}}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админпанель | CompTech</title>
+    <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <div class="logo">
+                <img src="/images/logo.png" alt="CompTech Logo">
+                <h1>Админпанель</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/admin/dashboard" class="{{#if (eq active 'dashboard')}}active{{/if}}">Главная</a></li>
+                    <li><a href="/admin/products" class="{{#if (eq active 'products')}}active{{/if}}">Товары</a></li>
+                    <li><a href="/admin/consultations" class="{{#if (eq active 'consultations')}}active{{/if}}">Консультации</a></li>
+                    <li><a href="/admin/master-requests" class="{{#if (eq active 'master')}}active{{/if}}">Заявки мастера</a></li>
+                    <li><a href="/auth/logout">Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<div class="dashboard">
-  <div class="stats">
-    <div class="stat-card">
-      <h3>Товары</h3>
-      <a href="/admin/products">{{products.length}}+</a>
-    </div>
-    <!-- Другие карточки -->
-  </div>
+    <main class="admin-container">
+        <div class="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Товары</h3>
+                    <div class="stat-value">{{stats.productsCount}}</div>
+                    <a href="/admin/products" class="stat-link">Управление</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Консультации</h3>
+                    <div class="stat-value">{{stats.consultationsCount}}</div>
+                    <a href="/admin/consultations" class="stat-link">Просмотр</a>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Заявки мастера</h3>
+                    <div class="stat-value">{{stats.masterRequestsCount}}</div>
+                    <a href="/admin/master-requests" class="stat-link">Обработка</a>
+                </div>
+            </div>
 
-  <div class="recent-activity">
-    <section>
-      <h3>Последние товары</h3>
-      {{> admin/products-table products=products}}
-    </section>
-    
-    <section>
-      <h3>Последние консультации</h3>
-      {{> admin/consultations-table consultations=consultations}}
-    </section>
-  </div>
-</div>
+            <div class="recent-activity">
+                <section class="activity-section">
+                    <h3>Последние добавленные товары</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Цена</th>
+                                <th>Остаток</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each recentProducts}}
+                            <tr>
+                                <td><a href="/admin/products/{{this.id}}">{{this.name}}</a></td>
+                                <td>{{this.price}} ₽</td>
+                                <td>{{this.stock}} шт.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </section>
 
-{{> admin/footer}}
+                <section class="activity-section">
+                    <h3>Новые консультации</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Телефон</th>
+                                <th>Дата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each recentConsultations}}
+                            <tr>
+                                <td>{{this.name}}</td>
+                                <td>{{this.phone}}</td>
+                                <td>{{formatDate this.createdAt}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="admin-footer">
+        <div class="container">
+            <p>&copy; {{currentYear}} CompTech. Административная панель.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/admin-dashboard.js"></script>
+</body>
+</html>

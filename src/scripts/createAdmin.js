@@ -1,4 +1,4 @@
-import { User } from '../src/models/index.js';
+import User from '../models/UserModel.js';
 import bcrypt from 'bcrypt';
 
 const createAdmin = async () => {
@@ -14,7 +14,7 @@ const createAdmin = async () => {
     const existingAdmin = await User.findOne({ where: { email: adminData.email } });
     if (!existingAdmin) {
       await User.create(adminData);
-      console.log('✅ Администратор создан');
+      console.log('✅ Администратор успешно создан');
       console.log('Email: admin@example.com');
       console.log('Пароль: admin123');
     } else {

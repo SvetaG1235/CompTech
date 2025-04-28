@@ -1,41 +1,114 @@
-{{> admin/header title="Управление товарами"}}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление товарами | CompTech</title>
+    <link rel="stylesheet" href="/styles/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <div class="logo">
+                <img src="/images/logo.png" alt="CompTech Logo">
+                <h1>Управление товарами</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/admin/dashboard">Назад в панель</a></li>
+                    <li><a href="/auth/logout">Выйти</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-<div class="products-admin">
-  <div class="product-form">
-    <h3>Добавить товар</h3>
-    <form action="/admin/products" method="POST">
-      <!-- Поля формы -->
-      <button type="submit">Добавить</button>
-    </form>
-  </div>
+    <main class="admin-container">
+        <div class="products-admin">
+            <div class="admin-actions">
+                <button id="addProductBtn" class="btn btn-primary">+ Добавить товар</button>
+            </div>
+            <div id="productFormContainer" class="product-form" style="display: none;">
+                <h3>Добавить новый товар</h3>
+                <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Название:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Категория:</label>
+                        <select id="category" name="category" required>
+                            <option value="Ноутбуки">Ноутбуки</option>
+                            <option value="Комплектующие">Комплектующие</option>
+                            <option value="Периферия">Периферия</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price">Цена (₽):</label>
+                        <input type="number" id="price" name="price" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock">Количество:</label>
+                        <input type="number" id="stock" name="stock" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Описание:</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="image">Изображение:</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-submit">Сохранить</button>
+                    <button type="button" id="cancelFormBtn" class="btn btn-cancel">Отмена</button>
+                </form>
+            </div>
 
-  <div class="product-list">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Название</th>
-          <th>Цена</th>
-          <th>Действия</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each products}}
-          <tr>
-            <td>{{this.id}}</td>
-            <td>{{this.name}}</td>
-            <td>{{this.price}} ₽</td>
-            <td>
-              <a href="#" class="edit-btn" data-id="{{this.id}}">Редактировать</a>
-              <form action="/admin/products/{{this.id}}/delete" method="POST">
-                <button type="submit">Удалить</button>
-              </form>
-            </td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
-</div>
+            <div class="product-list">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Категория</th>
+                            <th>Цена</th>
+                            <th>Остаток</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each products}}
+                        <tr>
+                            <td>{{this.id}}</td>
+                            <td>{{this.name}}</td>
+                            <td>{{this.category}}</td>
+                            <td>{{this.price}} ₽</td>
+                            <td>{{this.stock}} шт.</td>
+                            <td class="actions">
+                                <a href="/admin/products/{{this.id}}/edit" class="btn-edit">✏️</a>
+                                <form action="/admin/products/{{this.id}}/delete" method="POST" class="delete-form">
+                                    <button type="submit" class="btn-delete">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-{{> admin/footer}}
+    <footer class="admin-footer">
+        <div class="container">
+            <p>&copy; {{currentYear}} CompTech. Административная панель.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/admin-products.js"></script>
+</body>
+</html>

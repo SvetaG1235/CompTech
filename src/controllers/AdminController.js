@@ -41,6 +41,14 @@ class AdminController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  static async showdashboard(req, res) {
+    res.render('admin/dashboard', {
+      title: 'Административная панель',
+      user: req.session.user
+    });
+  }
+  
 }
 
 export default AdminController;

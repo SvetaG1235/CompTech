@@ -7,7 +7,6 @@ import session from 'express-session';
 import { create } from 'express-handlebars';
 import db from './db.js';
 
-// Импорт роутеров
 import ProductService from './services/ProductService.js';
 import authRouter from './routes/AuthRoutes.js';
 import consultationRouter from './routes/ConsultationRoutes.js';
@@ -16,13 +15,12 @@ import orderRouter from './routes/OrderRoutes.js';
 import repairRouter from './routes/RepairRoutes.js';
 import productRouter from './routes/ProductRoutes.js';
 import homeRouter from './routes/HomeRoutes.js';
-import adminRoutes from './routes/AdminRoutes.js';
+import adminRouter from './routes/AdminRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Настройка Handlebars с хелперами
 const hbs = create({
   extname: '.hbs',
   defaultLayout: 'main',
@@ -49,7 +47,6 @@ app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,13 +58,10 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-// Статические файлы
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// Локальные переменные для шаблонов
 app.use((req, res, next) => {
-  // Инициализация корзины
   if (!req.session.cart) {
     req.session.cart = [];
   }
@@ -78,9 +72,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Роуты
 app.use('/', homeRouter);
-app.use('/admin', adminRoutes);
+app.use('/admin', adminRouter);
 app.use('/products', productRouter);
 app.use('/auth', authRouter);
 app.use('/master', masterRouter);
@@ -93,7 +86,6 @@ app.get('/products', (req, res) => {
   res.redirect('/products/grouped');
 });
 
-// Обработка корзины
 app.post('/cart/add', (req, res) => {
   const { id, name, price, quantity } = req.body;
   const existingItem = req.session.cart.find(item => item.id === id);
@@ -107,12 +99,10 @@ app.post('/cart/add', (req, res) => {
   res.json({ success: true });
 });
 
-// Синхронизация БД
 db.sync({ force: false })
   .then(() => console.log('Database synced'))
   .catch(err => console.error('Database sync error:', err));
 
-// Обработка ошибок
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Страница не найдена' });
 });
