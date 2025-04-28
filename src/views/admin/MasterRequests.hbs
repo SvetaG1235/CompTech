@@ -107,43 +107,7 @@
         </div>
     </footer>
 
-    <script>document.getElementById('confirmAssignBtn').addEventListener('click', async () => {
-  try {
-    const selectedRequests = Array.from(document.querySelectorAll('.request-checkbox:checked'))
-      .map(el => el.dataset.id);
-    
-    if (selectedRequests.length === 0) {
-      alert('Выберите хотя бы одну заявку');
-      return;
-    }
-    
-    const masterId = document.getElementById('modalMasterSelect').value;
-    const visitDate = document.getElementById('visitDate').value;
-    
-    if (!masterId) {
-      alert('Выберите мастера');
-      return;
-    }
-    
-    const response = await fetch('/admin/masterRequests/bulk', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ids: selectedRequests,
-        masterId,
-        visitDate
-      })
-    });
-    
-    if (!response.ok) throw new Error('Ошибка при назначении');
-    
-    location.reload();
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
-});</script>
+    <script src="/javascripts/admin-common.js"></script>
+<script src="/javascripts/admin/masterRequests.js"></script>
 </body>
 </html>
