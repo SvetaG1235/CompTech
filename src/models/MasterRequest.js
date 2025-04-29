@@ -1,7 +1,13 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
+import User from './UserModel.js';
 
 const MasterRequest = sequelizeDB.define('MasterRequest', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   address: {
     type: Sequelize.STRING,
     allowNull: false
@@ -19,12 +25,43 @@ const MasterRequest = sequelizeDB.define('MasterRequest', {
   },
   clientId: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
   },
   masterId: {
     type: Sequelize.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  createdAt: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW
+  },
+  updatedAt: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW
   }
+}, {
+  tableName: 'master_requests',
+  timestamps: true,
+  underscored: true
 });
+
+MasterRequest.associate = function(models) {
+  MasterRequest.belongsTo(models.User, {
+    as: 'RequestingClient',
+    foreignKey: 'clientId'
+  });
+  MasterRequest.belongsTo(models.User, {
+    as: 'AssignedMaster',
+    foreignKey: 'masterId'
+  });
+};
 
 export default MasterRequest;

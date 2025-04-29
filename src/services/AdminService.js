@@ -84,9 +84,10 @@ class AdminService {
       where,
       include: [{
         model: User,
-        attributes: ['id', 'name', 'email', 'phone']
+        attributes: ['id', 'name', 'email', 'phone'],
+        required: false 
       }],
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']] 
     });
   }
 

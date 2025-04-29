@@ -113,12 +113,42 @@ class AdminController {
     }
   }
 
+  static async getProductsApi(req, res) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const { products, total } = await AdminService.getPaginatedProducts(page, limit);
+      res.json({ products, total });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  
+  static async getMasterRequestsApi(req, res) {
+    try {
+      const requests = await AdminService.getMasterRequests();
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  
+  static async getConsultationsApi(req, res) {
+    try {
+      const consultations = await AdminService.getConsultations();
+      res.json(consultations);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async getConsultations(req, res) {
     try {
+      console.log('Session user:', req.session.user); 
       const { status } = req.query;
       const consultations = await AdminService.getConsultations(status);
+      console.log('Consultations data:', consultations);
       
-      res.render('admin/consultations', {
+      res.render('admin/Consultations', {
         title: 'Консультации',
         consultations,
         user: req.session.user,
@@ -126,6 +156,7 @@ class AdminController {
         statusFilter: status || 'all'
       });
     } catch (error) {
+      console.error('Full error:', error);
       res.status(500).render('error', {
         title: 'Ошибка',
         message: 'Не удалось загрузить консультации'
@@ -148,6 +179,15 @@ class AdminController {
         title: 'Ошибка',
         message: 'Не удалось загрузить данные'
       });
+    }
+  }
+
+  static async getStats(req, res) {
+    try {
+      const stats = await AdminService.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 }

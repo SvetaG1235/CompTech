@@ -1,9 +1,10 @@
 import express from 'express';
 import ProductController from '../controllers/ProductController.js';
+import ProductService from '../services/ProductService.js';
 
 const router = express.Router();
 
-router.post('/seed', ProductController.seed);
+router.post('/seed', ProductService.seedProducts);
 router.get('/api', ProductController.getAllProducts);
 router.post('/', ProductController.addProduct);
 router.get('/:id', ProductController.getProduct);

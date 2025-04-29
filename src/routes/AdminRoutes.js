@@ -18,4 +18,10 @@ router.put('/master-requests/bulk', AdminController.bulkUpdateMasterRequests);
 
 router.get('/consultations', AdminController.getConsultations);
 
+router.get('/api/stats', AdminController.getStats);
+
+router.get('/api/products', AdminController.getProductsApi);
+router.get('/api/master-requests', AdminController.getMasterRequestsApi);
+router.get('/api/consultations', AdminController.getConsultationsApi);
+
 export default router;

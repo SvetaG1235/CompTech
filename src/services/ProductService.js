@@ -39,6 +39,7 @@ class ProductService {
       throw new Error(`Ошибка при удалении товара: ${error.message}`);
     }
   }
+
   static async updateProduct(id, productData) {
     try {
       const product = await Product.findByPk(id);
