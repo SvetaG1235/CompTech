@@ -38,29 +38,21 @@ const MasterRequest = sequelizeDB.define('MasterRequest', {
       model: User,
       key: 'id'
     }
-  },
-  createdAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
-  },
-  updatedAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
   }
 }, {
   tableName: 'master_requests',
-  timestamps: true,
-  underscored: true
+  timestamps: true
 });
 
 MasterRequest.associate = function(models) {
   MasterRequest.belongsTo(models.User, {
-    as: 'RequestingClient',
-    foreignKey: 'clientId'
+    foreignKey: 'clientId',
+    as: 'client'
   });
+  
   MasterRequest.belongsTo(models.User, {
-    as: 'AssignedMaster',
-    foreignKey: 'masterId'
+    foreignKey: 'masterId',
+    as: 'master'
   });
 };
 

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './UserModel.js'; 
+import User from './UserModel.js';
 
 const Consultation = sequelizeDB.define('Consultation', {
   id: {
@@ -16,21 +16,10 @@ const Consultation = sequelizeDB.define('Consultation', {
     type: Sequelize.STRING,
     allowNull: false,
     validate: {
-      isIn: [['email', 'phone', 'any']]
+      notEmpty: true
     }
   },
-  status: {
-    type: Sequelize.STRING,
-    defaultValue: 'pending',
-    validate: {
-      isIn: [['pending', 'processed', 'rejected']] 
-    }
-  },
-  adminComment: {
-    type: Sequelize.TEXT,
-    allowNull: true
-  },
-  userId: { 
+  userId: {
     type: Sequelize.INTEGER,
     allowNull: true,
     references: {
@@ -38,25 +27,30 @@ const Consultation = sequelizeDB.define('Consultation', {
       key: 'id'
     }
   },
-  createdAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
+  status: {
+    type: Sequelize.ENUM('new', 'processed', 'completed'),
+    defaultValue: 'new'
   },
-  updatedAt: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
+  adminComment: {
+    type: Sequelize.TEXT
+  },
+  questionerName: {
+    type: Sequelize.STRING,
+    allowNull: true
+  },
+  phone: {
+    type: Sequelize.STRING,
+    allowNull: true
   }
 }, {
-  timestamps: true, 
-  tableName: 'consultations', 
-  underscored: true 
+  tableName: 'consultations',
+  timestamps: true
 });
 
 Consultation.associate = function(models) {
   Consultation.belongsTo(models.User, {
     foreignKey: 'userId',
-    as: 'user',
-    onDelete: 'SET NULL'
+    as: 'user'
   });
 };
 

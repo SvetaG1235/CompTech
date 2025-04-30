@@ -25,4 +25,31 @@ const User = sequelizeDB.define('User', {
   }
 });
 
+User.associate = function(models) {
+  User.hasMany(models.Order, {
+    foreignKey: 'userId',
+    as: 'orders'
+  });
+  
+  User.hasMany(models.RepairRequest, {
+    foreignKey: 'userId',
+    as: 'repairRequests'
+  });
+
+  User.hasMany(models.Consultation, {
+    foreignKey: 'userId',
+    as: 'consultations'
+  });
+  
+  User.hasMany(models.MasterRequest, {
+    foreignKey: 'clientId',
+    as: 'clientRequests'
+  });
+  
+  User.hasMany(models.MasterRequest, {
+    foreignKey: 'masterId',
+    as: 'assignedRequests'
+  });
+};
+
 export default User;

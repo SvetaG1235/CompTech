@@ -1,8 +1,9 @@
 import express from 'express';
-import consultationController from '../controllers/ConsultationController.js';
+import ConsultationController from '../controllers/ConsultationController.js';
 
 const router = express.Router();
 
-router.get('/consultation', consultationController.showConsForm);
+router.get('/', ConsultationController.showConsForm); 
+router.post('/', ConsultationController.create);    
 
 export default router;

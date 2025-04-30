@@ -16,6 +16,8 @@ router.delete('/products/:id', AdminController.deleteProduct);
 router.get('/master-requests', AdminController.getMasterRequests);
 router.put('/master-requests/bulk', AdminController.bulkUpdateMasterRequests);
 
+router.get('/repair-requests', AdminController.getRepairRequests);
+
 router.get('/consultations', AdminController.getConsultations);
 
 router.get('/api/stats', AdminController.getStats);

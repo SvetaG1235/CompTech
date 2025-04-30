@@ -43,22 +43,22 @@ class AdminService {
     const where = {};
     if (status !== 'all') where.status = status;
     
-    return MasterRequest.findAll({
+    return await MasterRequest.findAll({
       where,
       include: [
         {
           model: User,
-          as: 'RequestingClient',
+          as: 'client', 
           attributes: ['id', 'name', 'phone']
         },
         {
           model: User,
-          as: 'AssignedMaster',
+          as: 'master', 
           attributes: ['id', 'name', 'phone'],
           required: false
         }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
   }
 
@@ -72,7 +72,18 @@ class AdminService {
   static async getAvailableMasters() {
     return User.findAll({
       where: { role: 'master' },
-      attributes: ['id', 'name', 'specialization']
+      attributes: ['id', 'name']
+    });
+  }
+
+  static async getRepairRequests() {
+    return await RepairRequest.findAll({
+      include: [{
+        model: User,
+        as: 'repairRequestUser',  // Должно совпадать с алиасом в index.js
+        attributes: ['id', 'name', 'phone']
+      }],
+      order: [['created_at', 'DESC']]
     });
   }
 
@@ -80,33 +91,29 @@ class AdminService {
     const where = {};
     if (status !== 'all') where.status = status;
     
-    return Consultation.findAll({
+    return await Consultation.findAll({
       where,
       include: [{
         model: User,
+        as: 'User',
         attributes: ['id', 'name', 'email', 'phone'],
-        required: false 
+        required: false
       }],
-      order: [['createdAt', 'DESC']] 
+      order: [['createdAt', 'DESC']]
     });
   }
 
   static async getDashboardStats() {
-    const [productsCount, consultationsCount, masterRequestsCount, recentProducts] = await Promise.all([
+    const [productsCount, consultationsCount, masterRequestsCount] = await Promise.all([
       Product.count(),
       Consultation.count(),
-      MasterRequest.count(),
-      Product.findAll({
-        order: [['createdAt', 'DESC']],
-        limit: 5
-      })
+      MasterRequest.count()
     ]);
-    
+  
     return {
-      productsCount,
-      consultationsCount,
-      masterRequestsCount,
-      recentProducts
+      productsCount: productsCount || 0,
+      consultationsCount: consultationsCount || 0,
+      masterRequestsCount: masterRequestsCount || 0
     };
   }
 }

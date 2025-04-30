@@ -1,31 +1,38 @@
-<section class="consultation">
-    <h2>Запись на консультацию</h2>
-    <form id="consultationForm">
-        <div class="form-group">
-            <label for="name">Ваше имя:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phone">Контактный телефон:</label>
-            <input type="tel" id="phone" name="phone" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="question">Ваш вопрос:</label>
-            <textarea id="question" name="question" rows="5" required></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label for="preferred-contact">Предпочитаемый способ связи:</label>
-            <select id="preferred-contact" name="preferred-contact">
-                <option value="phone">Телефонный звонок</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="telegram">Telegram</option>
-                <option value="email">Email</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn">Записаться</button>
-    </form>
-</section>
+>
+        <section class="consultation-form">
+            <h1>Запись на консультацию</h1>
+            
+            {{#if error}}
+                <div class="alert alert-danger">{{error}}</div>
+            {{/if}}
+            
+            <form action="/consultation" method="POST" class="consultation-form">
+                <div class="form-group">
+                    <label for="name">Ваше имя:</label>
+                    <input type="text" id="name" name="name" value="{{formData.name}}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Телефон:</label>
+                    <input type="tel" id="phone" name="phone" value="{{formData.phone}}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="question">Ваш вопрос:</label>
+                    <textarea id="question" name="question" rows="5" required>{{formData.question}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="preferredContact">Способ связи:</label>
+                    <select id="preferredContact" name="preferredContact" required>
+                        <option value="">Выберите способ связи</option>
+                        <option value="phone" {{#if (eq formData.preferredContact 'phone')}}selected{{/if}}>Телефон</option>
+                        <option value="whatsapp" {{#if (eq formData.preferredContact 'whatsapp')}}selected{{/if}}>WhatsApp</option>
+                        <option value="telegram" {{#if (eq formData.preferredContact 'telegram')}}selected{{/if}}>Telegram</option>
+                        <option value="email" {{#if (eq formData.preferredContact 'email')}}selected{{/if}}>Email</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </form>
+        </section>

@@ -37,5 +37,13 @@ const Product = sequelizeDB.define('Product', {
     timestamps: true
 });
 
-Product.belongsToMany(Order, { through: 'OrderItems' });
+Product.associate = function(models) {
+    Product.belongsToMany(models.Order, {
+      through: models.OrderItem,
+      foreignKey: 'productId',
+      otherKey: 'orderId',
+      as: 'orders'
+    });
+  };
+  
 export default Product;

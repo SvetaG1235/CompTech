@@ -7,24 +7,31 @@ import RepairRequest from './RepairRequestModel.js';
 import MasterRequest from './MasterRequest.js';
 import Consultation from './Consultation.js';
 
-User.hasMany(MasterRequest, { foreignKey: 'clientId' });
-User.hasMany(MasterRequest, { foreignKey: 'masterId' });
+function setupAssociations() {
+  [User, Product, Order, RepairRequest, MasterRequest, Consultation].forEach(model => {
+    if (model.associate) {
+      model.associate({
+        User,
+        Product,
+        Order,
+        OrderItem,
+        RepairRequest,
+        MasterRequest,
+        Consultation
+      });
+    }
+  });
+}
 
-MasterRequest.belongsTo(User, { foreignKey: 'clientId', as: 'RequestingClient' });
-MasterRequest.belongsTo(User, { foreignKey: 'masterId', as: 'AssignedMaster' });
-
-User.hasMany(Order);
-User.hasMany(RepairRequest);
-User.hasMany(Consultation);
-
-Order.belongsTo(User);
-Order.belongsToMany(Product, { through: OrderItem });
-
-Product.belongsToMany(Order, { through: OrderItem });
-
-RepairRequest.belongsTo(User);
-
-Consultation.belongsTo(User);
+async function syncModels() {
+  try {
+    setupAssociations();
+    await sequelize.sync({ alter: true });
+    console.log('Все модели успешно синхронизированы.');
+  } catch (error) {
+    console.error('Ошибка синхронизации моделей:', error);
+  }
+}
 
 export {
   sequelize,
@@ -34,5 +41,6 @@ export {
   OrderItem,
   RepairRequest,
   MasterRequest,
-  Consultation
+  Consultation,
+  syncModels
 };

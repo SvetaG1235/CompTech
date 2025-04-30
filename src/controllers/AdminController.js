@@ -1,4 +1,7 @@
 import AdminService from '../services/AdminService.js';
+import Consultation from '../models/Consultation.js';
+import User from '../models/UserModel.js';
+import MasterRequest from '../models/MasterRequest.js';
 
 class AdminController {
   static async getProducts(req, res) {
@@ -72,23 +75,44 @@ class AdminController {
 
   static async getMasterRequests(req, res) {
     try {
-      const { status } = req.query;
-      const requests = await AdminService.getMasterRequests(status);
-      const masters = await AdminService.getAvailableMasters();
+      const requests = await MasterRequest.findAll({
+        include: [
+          { 
+            model: User, 
+            as: 'client',
+            attributes: ['id', 'name', 'phone']
+          },
+          { 
+            model: User, 
+            as: 'master',
+            attributes: ['id', 'name', 'phone'],
+            required: false 
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
       
       res.render('admin/masterRequests', {
-        title: 'Заявки мастера',
         requests,
-        masters,
-        user: req.session.user,
-        active: 'admin-master',
-        statusFilter: status || 'all'
+        user: req.session.user
       });
     } catch (error) {
-      res.status(500).render('error', {
-        title: 'Ошибка',
-        message: 'Не удалось загрузить заявки'
+      console.error('Master requests error:', error);
+      res.status(500).render('error', { message: 'Ошибка загрузки заявок' });
+    }
+  }
+
+  static async getRepairRequests(req, res) {
+    try {
+      const requests = await AdminService.getRepairRequests();
+      res.render('admin/repairRequests', {
+        title: 'Заявки на ремонт',
+        requests,
+        user: req.session.user
       });
+    } catch (error) {
+      console.error('Ошибка загрузки заявок:', error);
+      res.status(500).render('error', { message: 'Ошибка загрузки заявок' });
     }
   }
 
@@ -113,54 +137,25 @@ class AdminController {
     }
   }
 
-  static async getProductsApi(req, res) {
-    try {
-      const { page = 1, limit = 10 } = req.query;
-      const { products, total } = await AdminService.getPaginatedProducts(page, limit);
-      res.json({ products, total });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-  
-  static async getMasterRequestsApi(req, res) {
-    try {
-      const requests = await AdminService.getMasterRequests();
-      res.json(requests);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-  
-  static async getConsultationsApi(req, res) {
-    try {
-      const consultations = await AdminService.getConsultations();
-      res.json(consultations);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-
   static async getConsultations(req, res) {
     try {
-      console.log('Session user:', req.session.user); 
-      const { status } = req.query;
-      const consultations = await AdminService.getConsultations(status);
-      console.log('Consultations data:', consultations);
+      const consultations = await Consultation.findAll({
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'phone'],
+          required: false
+        }],
+        order: [['createdAt', 'DESC']]
+      });
       
       res.render('admin/Consultations', {
-        title: 'Консультации',
         consultations,
-        user: req.session.user,
-        active: 'admin-consultations',
-        statusFilter: status || 'all'
+        user: req.session.user
       });
     } catch (error) {
-      console.error('Full error:', error);
-      res.status(500).render('error', {
-        title: 'Ошибка',
-        message: 'Не удалось загрузить консультации'
-      });
+      console.error('Consultation error:', error);
+      res.status(500).render('error', { message: 'Ошибка загрузки консультаций' });
     }
   }
 
@@ -179,15 +174,6 @@ class AdminController {
         title: 'Ошибка',
         message: 'Не удалось загрузить данные'
       });
-    }
-  }
-
-  static async getStats(req, res) {
-    try {
-      const stats = await AdminService.getDashboardStats();
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
     }
   }
 }

@@ -24,16 +24,6 @@
 
     <main class="admin-container">
         <div class="consultations-admin">
-            <div class="filters">
-                <select id="statusFilter" class="filter-select">
-                    <option value="all">Все статусы</option>
-                    <option value="new">Новые</option>
-                    <option value="processed">Обработанные</option>
-                    <option value="completed">Завершенные</option>
-                </select>
-                <input type="date" id="dateFilter" class="filter-date">
-            </div>
-
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -49,16 +39,10 @@
                     {{#each consultations}}
                     <tr data-status="{{this.status}}">
                         <td>{{this.id}}</td>
-                        <td>{{this.name}}</td>
-                        <td>{{this.phone}}</td>
+                        <td>{{#if this.user}}{{this.user.name}}{{else}}{{this.questionerName}}{{/if}}</td>
+                        <td>{{#if this.user}}{{this.user.phone}}{{else}}{{this.phone}}{{/if}}</td>
                         <td>{{formatDate this.createdAt}}</td>
-                        <td>
-                            <span class="status-badge status-{{this.status}}">
-                                {{#if (eq this.status 'new')}}Новая{{/if}}
-                                {{#if (eq this.status 'processed')}}В работе{{/if}}
-                                {{#if (eq this.status 'completed')}}Завершена{{/if}}
-                            </span>
-                        </td>
+                        <td><span class="status-badge status-{{this.status}}">{{this.status}}</span></td>
                         <td class="actions">
                             <button class="btn-view" data-id="{{this.id}}">Просмотр</button>
                             <select class="status-select" data-id="{{this.id}}">
@@ -68,30 +52,11 @@
                             </select>
                         </td>
                     </tr>
+                    {{else}}
+                    <tr><td colspan="6" class="no-data">Нет данных для отображения</td></tr>
                     {{/each}}
                 </tbody>
             </table>
-
-
-            <div id="consultationModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h3>Детали заявки #<span id="modalId"></span></h3>
-                    <div class="modal-body">
-                        <p><strong>Имя:</strong> <span id="modalName"></span></p>
-                        <p><strong>Телефон:</strong> <span id="modalPhone"></span></p>
-                        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-                        <p><strong>Дата:</strong> <span id="modalDate"></span></p>
-                        <p><strong>Вопрос:</strong></p>
-                        <div id="modalQuestion" class="question-text"></div>
-                        <div class="form-group">
-                            <label for="modalComment">Комментарий:</label>
-                            <textarea id="modalComment" rows="3"></textarea>
-                        </div>
-                        <button id="saveCommentBtn" class="btn btn-primary">Сохранить</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 

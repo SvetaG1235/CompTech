@@ -1,0 +1,32 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Устройство</th>
+      <th>Проблема</th>
+      <th>Статус</th>
+      <th>Пользователь</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each requests}}
+    <tr>
+      <td>{{this.id}}</td>
+      <td>{{this.device}}</td>
+      <td>{{this.problem}}</td>
+      <td>{{this.status}}</td>
+      <td>
+        {{#if this.repairRequestUser}}
+          {{this.repairRequestUser.name}} ({{this.repairRequestUser.phone}})
+        {{else}}
+          Не указан
+        {{/if}}
+      </td>
+    </tr>
+    {{else}}
+    <tr>
+      <td colspan="5">Нет заявок</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

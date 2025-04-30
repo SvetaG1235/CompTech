@@ -1,17 +1,7 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './UserModel.js';
 
 const Order = sequelizeDB.define('Order', {
-  status: {
-    type: Sequelize.ENUM('pending', 'completed', 'cancelled'),
-    defaultValue: 'pending'
-  },
-  id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    primaryKey: true,
-  },
   address: {
     type: Sequelize.STRING,
     allowNull: false
@@ -23,10 +13,31 @@ const Order = sequelizeDB.define('Order', {
   total: {
     type: Sequelize.DECIMAL(10, 2),
     allowNull: false
+  },
+  status: {
+    type: Sequelize.STRING,
+    defaultValue: 'pending'
   }
+}, {
+  tableName: 'orders',
+  timestamps: true,
+  underscored: true 
 });
 
-Order.belongsTo(User);
-User.hasMany(Order);
+
+Order.associate = function(models) {
+  Order.belongsTo(models.User, {
+    foreignKey: 'userId',
+    as: 'user'
+  });
+  
+  Order.belongsToMany(models.Product, {
+    through: models.OrderItem,
+    foreignKey: 'orderId',
+    otherKey: 'productId',
+    as: 'products'
+  });
+};
+
 
 export default Order;
