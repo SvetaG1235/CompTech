@@ -1,4 +1,5 @@
 import Product from '../models/ProductsModel.js';
+import { Sequelize } from 'sequelize';
 
 class ProductService {
   static async getAllProducts() {
@@ -7,13 +8,14 @@ class ProductService {
         order: [['category', 'ASC'], ['name', 'ASC']]
       });
     } catch (error) {
-      throw new Error(`Ошибка при получении товаров: ${error.message}`);
+      throw new Error(`Failed to get products: ${error.message}`);
     }
   }
+
   static async addProduct(productData) {
     try {
       if (!productData.name || !productData.price || !productData.category) {
-        throw new Error('Необходимо указать название, цену и категорию товара');
+        throw new Error('Name, price and category are required');
       }
 
       return await Product.create({
@@ -21,22 +23,24 @@ class ProductService {
         category: productData.category,
         price: parseFloat(productData.price),
         stock: parseInt(productData.stock) || 0,
-        description: productData.description || ''
+        description: productData.description || '',
+        imageUrl: productData.imageUrl || null
       });
     } catch (error) {
-      throw new Error(`Ошибка при добавлении товара: ${error.message}`);
+      throw new Error(`Failed to add product: ${error.message}`);
     }
   }
+
   static async deleteProduct(id) {
     try {
       const product = await Product.findByPk(id);
       if (!product) {
-        throw new Error('Товар не найден');
+        throw new Error('Product not found');
       }
       await product.destroy();
       return true;
     } catch (error) {
-      throw new Error(`Ошибка при удалении товара: ${error.message}`);
+      throw new Error(`Failed to delete product: ${error.message}`);
     }
   }
 
@@ -44,7 +48,7 @@ class ProductService {
     try {
       const product = await Product.findByPk(id);
       if (!product) {
-        throw new Error('Товар не найден');
+        throw new Error('Product not found');
       }
 
       return await product.update({
@@ -52,10 +56,11 @@ class ProductService {
         category: productData.category || product.category,
         price: productData.price ? parseFloat(productData.price) : product.price,
         stock: productData.stock ? parseInt(productData.stock) : product.stock,
-        description: productData.description || product.description
+        description: productData.description || product.description,
+        imageUrl: productData.imageUrl || product.imageUrl
       });
     } catch (error) {
-      throw new Error(`Ошибка при обновлении товара: ${error.message}`);
+      throw new Error(`Failed to update product: ${error.message}`);
     }
   }
 
@@ -63,11 +68,11 @@ class ProductService {
     try {
       const product = await Product.findByPk(id);
       if (!product) {
-        throw new Error('Товар не найден');
+        throw new Error('Product not found');
       }
       return product;
     } catch (error) {
-      throw new Error(`Ошибка при получении товара: ${error.message}`);
+      throw new Error(`Failed to get product: ${error.message}`);
     }
   }
 
@@ -78,7 +83,7 @@ class ProductService {
         order: [['name', 'ASC']]
       });
     } catch (error) {
-      throw new Error(`Ошибка при получении товаров по категории: ${error.message}`);
+      throw new Error(`Failed to get products by category: ${error.message}`);
     }
   }
 
@@ -91,86 +96,91 @@ class ProductService {
       });
       return categories.map(item => item.category);
     } catch (error) {
-      throw new Error(`Ошибка при получении категорий: ${error.message}`);
+      throw new Error(`Failed to get categories: ${error.message}`);
     }
   }
 
   static async seedProducts() {
-    const Products = [
+    const testProducts = [
       {
         name: 'ASUS ROG Strix G15',
-        category: 'Ноутбуки',
+        category: 'Laptops',
         price: 1299.99,
         stock: 10,
-        description: 'Игровой ноутбук с процессором Intel Core i7-11800H'
+        description: 'Gaming laptop with Intel Core i7-11800H'
       },
       {
         name: 'Acer Nitro 5',
-        category: 'Ноутбуки',
+        category: 'Laptops',
         price: 899.99,
         stock: 8,
-        description: 'Игровой ноутбук с NVIDIA GeForce RTX 3050 Ti'
+        description: 'Gaming laptop with NVIDIA GeForce RTX 3050 Ti'
       },
       {
         name: 'Intel Core i9-12900K',
-        category: 'Процессоры',
+        category: 'Processors',
         price: 599.99,
         stock: 15,
-        description: '16 ядер, 24 потока, тактовая частота до 5.2 ГГц'
+        description: '16 cores, 24 threads, up to 5.2 GHz'
       },
       {
         name: 'AMD Ryzen 9 5950X',
-        category: 'Процессоры',
+        category: 'Processors',
         price: 549.99,
         stock: 12,
-        description: '16 ядер, 32 потока, тактовая частота до 4.9 ГГц'
+        description: '16 cores, 32 threads, up to 4.9 GHz'
       },
       {
         name: 'NVIDIA GeForce RTX 3080',
-        category: 'Видеокарты',
+        category: 'Graphics Cards',
         price: 899.99,
         stock: 5,
-        description: '10GB GDDR6X, 8704 ядер CUDA'
+        description: '10GB GDDR6X, 8704 CUDA cores'
       },
       {
         name: 'AMD Radeon RX 6800 XT',
-        category: 'Видеокарты',
+        category: 'Graphics Cards',
         price: 799.99,
         stock: 7,
-        description: '16GB GDDR6, 4608 потоковых процессоров'
+        description: '16GB GDDR6, 4608 stream processors'
       },
       {
         name: 'Samsung 980 Pro 1TB',
         category: 'SSD',
         price: 199.99,
         stock: 20,
-        description: 'NVMe SSD, скорость чтения до 7000 МБ/с'
+        description: 'NVMe SSD, read speed up to 7000 MB/s'
       },
       {
         name: 'WD Black SN850 1TB',
         category: 'SSD',
         price: 189.99,
         stock: 18,
-        description: 'NVMe SSD, скорость чтения до 7000 МБ/с'
+        description: 'NVMe SSD, read speed up to 7000 MB/s'
       },
       {
         name: 'Kingston Fury 32GB',
-        category: 'Оперативная память',
+        category: 'RAM',
         price: 149.99,
         stock: 25,
         description: 'DDR4 3200MHz, 2x16GB'
       },
       {
         name: 'Corsair Vengeance 16GB',
-        category: 'Оперативная память',
+        category: 'RAM',
         price: 89.99,
         stock: 30,
         description: 'DDR4 3200MHz, 2x8GB'
       }
     ];
-  
-    await Product.destroy({ where: {} });
-    return await Product.bulkCreate(products);
+
+    try {
+      await Product.destroy({ where: {} });
+      const createdProducts = await Product.bulkCreate(testProducts);
+      return createdProducts;
+    } catch (error) {
+      throw new Error(`Failed to seed products: ${error.message}`);
+    }
   }
 
   static async searchProducts(query) {
@@ -184,7 +194,7 @@ class ProductService {
         order: [['name', 'ASC']]
       });
     } catch (error) {
-      throw new Error(`Ошибка при поиске товаров: ${error.message}`);
+      throw new Error(`Failed to search products: ${error.message}`);
     }
   }
 }

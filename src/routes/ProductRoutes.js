@@ -1,18 +1,16 @@
 import express from 'express';
 import ProductController from '../controllers/ProductController.js';
-import ProductService from '../services/ProductService.js';
 
 const router = express.Router();
 
-router.post('/seed', ProductService.seedProducts);
+router.post('/seed', ProductController.seed);
 router.get('/api', ProductController.getAllProducts);
 router.post('/', ProductController.addProduct);
+router.get('/grouped', ProductController.getProductsGrouped);
+router.get('/category/:category', ProductController.getByCategory);
 router.get('/:id', ProductController.getProduct);
 router.put('/:id', ProductController.updateProduct);
 router.delete('/:id', ProductController.deleteProduct);
-router.get('/category/:category', ProductController.getByCategory);
-
 router.get('/', ProductController.showProductsPage);
-router.get('/grouped', ProductController.getProductsGrouped);
 
 export default router;

@@ -6,6 +6,7 @@ import logger from 'morgan';
 import session from 'express-session';
 import { create } from 'express-handlebars';
 import db from './db.js';
+import { syncModels } from './models/index.js';
 
 import ProductService from './services/ProductService.js';
 import authRouter from './routes/AuthRoutes.js';
@@ -24,6 +25,10 @@ const app = express();
 const hbs = create({
   extname: '.hbs',
   defaultLayout: 'main',
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  },
   helpers: {
     eq: (a, b) => a === b,
     neq: (a, b) => a !== b,
@@ -42,6 +47,8 @@ const hbs = create({
     json: (context) => JSON.stringify(context)
   }
 });
+
+syncModels();
 
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
@@ -98,10 +105,6 @@ app.post('/cart/add', (req, res) => {
   
   res.json({ success: true });
 });
-
-db.sync({ force: false })
-  .then(() => console.log('Database synced'))
-  .catch(err => console.error('Database sync error:', err));
 
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Страница не найдена' });

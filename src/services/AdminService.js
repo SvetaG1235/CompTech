@@ -6,37 +6,30 @@ import {
 } from '../models/index.js';
 
 class AdminService {
-  static async getPaginatedProducts(page = 1, limit = 10) {
+  static async getPaginatedProducts(page, limit) {
     const offset = (page - 1) * limit;
-    
-    const { count, rows } = await Product.findAndCountAll({
+    const { rows: products, count: total } = await Product.findAndCountAll({
       limit,
       offset,
       order: [['createdAt', 'DESC']]
     });
-    
-    return {
-      products: rows,
-      total: count
-    };
+    return { products, total };
   }
 
   static async createProduct(productData) {
-    return Product.create(productData);
+    return await Product.create(productData);
   }
 
-  static async updateProduct(id, updateData) {
+  static async updateProduct(id, productData) {
     const product = await Product.findByPk(id);
-    if (!product) throw new Error('Товар не найден');
-    
-    return product.update(updateData);
+    if (!product) throw new Error('Product not found');
+    return await product.update(productData);
   }
 
   static async deleteProduct(id) {
     const product = await Product.findByPk(id);
-    if (!product) throw new Error('Товар не найден');
-    
-    return product.destroy();
+    if (!product) throw new Error('Product not found');
+    await product.destroy();
   }
 
   static async getMasterRequests(status = 'all') {
@@ -58,7 +51,7 @@ class AdminService {
           required: false
         }
       ],
-      order: [['created_at', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
   }
 
@@ -80,10 +73,10 @@ class AdminService {
     return await RepairRequest.findAll({
       include: [{
         model: User,
-        as: 'repairRequestUser',  // Должно совпадать с алиасом в index.js
+        as: 'user',
         attributes: ['id', 'name', 'phone']
       }],
-      order: [['created_at', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
   }
 
@@ -95,7 +88,7 @@ class AdminService {
       where,
       include: [{
         model: User,
-        as: 'User',
+        as: 'user',
         attributes: ['id', 'name', 'email', 'phone'],
         required: false
       }],

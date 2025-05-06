@@ -2,6 +2,7 @@ import AdminService from '../services/AdminService.js';
 import Consultation from '../models/Consultation.js';
 import User from '../models/UserModel.js';
 import MasterRequest from '../models/MasterRequest.js';
+import RepairRequest from '../models/RepairRequestModel.js';
 
 class AdminController {
   static async getProducts(req, res) {
@@ -79,40 +80,57 @@ class AdminController {
         include: [
           { 
             model: User, 
-            as: 'client',
-            attributes: ['id', 'name', 'phone']
+            as: 'client', 
+            attributes: ['id', 'name', 'phone'] 
           },
           { 
             model: User, 
-            as: 'master',
-            attributes: ['id', 'name', 'phone'],
+            as: 'master', 
+            attributes: ['id', 'name', 'phone'], 
             required: false 
           }
         ],
         order: [['createdAt', 'DESC']]
       });
       
-      res.render('admin/masterRequests', {
-        requests,
-        user: req.session.user
+      res.render('admin/masterRequests', { 
+        title: 'Заявки мастера',
+        requests, 
+        user: req.session.user,
+        active: 'master-requests'
       });
     } catch (error) {
       console.error('Master requests error:', error);
-      res.status(500).render('error', { message: 'Ошибка загрузки заявок' });
+      res.status(500).render('error', { 
+        title: 'Ошибка',
+        message: 'Не удалось загрузить заявки' 
+      });
     }
   }
 
   static async getRepairRequests(req, res) {
     try {
-      const requests = await AdminService.getRepairRequests();
-      res.render('admin/repairRequests', {
-        title: 'Заявки на ремонт',
+      const requests = await RepairRequest.findAll({
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'phone'],
+          required: false
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+      
+      res.render('admin/repairRequests', { 
+        title: 'Repair Requests',
         requests,
         user: req.session.user
       });
     } catch (error) {
-      console.error('Ошибка загрузки заявок:', error);
-      res.status(500).render('error', { message: 'Ошибка загрузки заявок' });
+      console.error('Error loading repair requests:', error);
+      res.status(500).render('error', { 
+        title: 'Ошибка',
+        message: 'Не удалось загрузить заявки на ремонт' 
+      });
     }
   }
 
@@ -149,15 +167,21 @@ class AdminController {
         order: [['createdAt', 'DESC']]
       });
       
-      res.render('admin/Consultations', {
-        consultations,
-        user: req.session.user
+      res.render('admin/Consultations', { 
+        title: 'Консультации',
+        consultations, 
+        user: req.session.user,
+        active: 'consultations'
       });
     } catch (error) {
       console.error('Consultation error:', error);
-      res.status(500).render('error', { message: 'Ошибка загрузки консультаций' });
+      res.status(500).render('error', { 
+        title: 'Ошибка',
+        message: 'Не удалось загрузить консультации' 
+      });
     }
   }
+  
 
   static async showDashboard(req, res) {
     try {
@@ -176,6 +200,60 @@ class AdminController {
       });
     }
   }
+
+  static async getStats(req, res) {
+    try {
+      const stats = await AdminService.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getMasterRequestsAPI(req, res) {
+    try {
+      const requests = await MasterRequest.findAll({
+        include: [
+          { model: User, as: 'client', attributes: ['id', 'name', 'phone'] },
+          { model: User, as: 'master', attributes: ['id', 'name', 'phone'], required: false }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  
+  static async getConsultationsAPI(req, res) {
+    try {
+      const consultations = await Consultation.findAll({
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'phone'],
+          required: false
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+      res.json(consultations);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  
+  static async getProductsAPI(req, res) {
+    try {
+      const products = await Product.findAll({
+        order: [['createdAt', 'DESC']]
+      });
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+
 }
 
 export default AdminController;

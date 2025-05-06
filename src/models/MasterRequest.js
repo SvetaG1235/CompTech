@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './UserModel.js';
 
 const MasterRequest = sequelizeDB.define('MasterRequest', {
   id: {
@@ -25,22 +24,14 @@ const MasterRequest = sequelizeDB.define('MasterRequest', {
   },
   clientId: {
     type: Sequelize.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
+    allowNull: false
   },
   masterId: {
     type: Sequelize.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id'
-    }
+    allowNull: true
   }
 }, {
-  tableName: 'master_requests',
+  tableName: 'MasterRequests',
   timestamps: true
 });
 

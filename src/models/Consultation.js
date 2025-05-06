@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
-import User from './UserModel.js';
 
 const Consultation = sequelizeDB.define('Consultation', {
   id: {
@@ -14,36 +13,22 @@ const Consultation = sequelizeDB.define('Consultation', {
   },
   preferredContact: {
     type: Sequelize.STRING,
-    allowNull: false,
-    validate: {
-      notEmpty: true
-    }
+    allowNull: false
   },
   userId: {
     type: Sequelize.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id'
-    }
+    allowNull: true
   },
   status: {
     type: Sequelize.ENUM('new', 'processed', 'completed'),
     defaultValue: 'new'
-  },
-  adminComment: {
-    type: Sequelize.TEXT
-  },
-  questionerName: {
-    type: Sequelize.STRING,
-    allowNull: true
   },
   phone: {
     type: Sequelize.STRING,
     allowNull: true
   }
 }, {
-  tableName: 'consultations',
+  tableName: 'Consultations',
   timestamps: true
 });
 
