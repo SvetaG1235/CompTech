@@ -5,24 +5,173 @@
     <div class="cart-items">
       {{#each cartItems}}
         <div class="cart-item">
-          <h3>{{this.product.name}}</h3>
-          <p>Цена: {{this.product.price}} ₽ x {{this.quantity}}</p>
-          <p>Итого: {{multiply this.product.price this.quantity}} ₽</p>
-          <button class="remove-from-cart" data-id="{{this.product.id}}">Удалить</button>
+          <img src="{{this.product.imageUrl}}" alt="{{this.product.name}}" width="100">
+          <div class="item-details">
+            <h3>{{this.product.name}}</h3>
+            <p>Цена: {{this.product.price}} ₽</p>
+            
+            <form action="/cart/update/{{this.product.id}}" method="POST" class="quantity-form">
+              <label for="quantity">Количество:</label>
+              <input type="number" name="quantity" value="{{this.quantity}}" min="1">
+              <button type="submit">Обновить</button>
+            </form>
+            
+            <p>Итого: {{multiply this.product.price this.quantity}} ₽</p>
+            
+            <form action="/cart/remove/{{this.product.id}}" method="POST">
+              <button type="submit" class="remove-btn">Удалить</button>
+            </form>
+          </div>
         </div>
       {{/each}}
     </div>
     
-    <div class="cart-total">
+    <div class="cart-summary">
       <h3>Общая сумма: {{total}} ₽</h3>
+      <a href="/products" class="continue-btn">Продолжить покупки</a>
+      <a href="/orders" class="checkout-btn">Оформить заказ</a>
     </div>
-    
-    <form method="POST" action="/orders" class="order-form">
-      <input type="text" name="address" placeholder="Адрес доставки" required>
-      <input type="tel" name="phone" placeholder="Телефон" required>
-      <button type="submit">Оформить заказ</button>
-    </form>
   {{else}}
-    <p>Ваша корзина пуста</p>
+    <div class="empty-cart">
+      <p>Ваша корзина пуста</p>
+      <a href="/products" class="btn">Перейти к товарам</a>
+    </div>
   {{/if}}
 </div>
+
+<script>document.addEventListener('DOMContentLoaded', function() {
+
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('add-to-cart')) {
+            const button = e.target;
+            const productId = button.dataset.id;
+            const productName = button.dataset.name;
+            const productPrice = button.dataset.price;
+            
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Добавляем...';
+            
+            try {
+                const response = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        name: productName,
+                        price: productPrice,
+                        quantity: 1
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) throw new Error(result.error || 'Ошибка сервера');
+                
+                updateCartCounter(result.count);
+                showToast(result.message || 'Товар добавлен в корзину');
+                
+                button.classList.add('btn--in-cart');
+                button.textContent = '✓ В корзине';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Не удалось добавить товар', 'error');
+                button.textContent = originalText;
+            } finally {
+                setTimeout(() => {
+                    button.disabled = false;
+                }, 2000);
+            }
+        }
+    });
+    
+    document.querySelectorAll('.quantity-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const productId = form.action.split('/').pop();
+            const quantity = form.querySelector('input[name="quantity"]').value;
+            
+            try {
+                const response = await fetch(`/cart/update/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ quantity })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) throw new Error(result.error);
+                
+                showToast(result.message);
+              
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Не удалось обновить количество', 'error');
+            }
+        });
+    });
+
+    document.querySelectorAll('.remove-btn').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const form = e.target.closest('form');
+            const productId = form.action.split('/').pop();
+            
+            if (!confirm('Удалить товар из корзины?')) return;
+            
+            try {
+                const response = await fetch(`/cart/remove/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) throw new Error(result.error);
+                
+                showToast(result.mess
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(error.message || 'Не удалось удалить товар', 'error');
+            }
+        });
+    });
+    
+    function updateCartCounter(count) {
+        const counters = document.querySelectorAll('.cart-counter');
+        counters.forEach(counter => {
+            counter.textContent = count;
+        });
+    }
+    
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast--${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('toast--fade-out');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    fetch('/cart/count')
+        .then(response => response.json())
+        .then(data => updateCartCounter(data.count))
+        .catch(console.error);
+});</script>

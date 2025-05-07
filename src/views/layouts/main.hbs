@@ -26,7 +26,7 @@
                         <li><a href="/admin/products" class="{{#if (eq active 'admin-products')}}active{{/if}}">Товары</a></li>
                         <li><a href="/admin/consultations" class="{{#if (eq active 'admin-consultations')}}active{{/if}}">Консультации</a></li>
                         <li><a href="/admin/master-requests" class="{{#if (eq active 'admin-master')}}active{{/if}}">Мастера</a></li>
-                        <li><a href="/admin/repair-requests" class="{{#if (eq active 'admin-repair')}}active{{/if}}">Мастера</a></li>
+                        <li><a href="/admin/repair-requests" class="{{#if (eq active 'admin-repair')}}active{{/if}}">Ремонты</a></li>
                     {{else}}
                         <!-- Для обычных пользователей -->
                         <li><a href="/products" class="{{#if (eq active 'products')}}active{{/if}}">Товары</a></li>
@@ -38,9 +38,18 @@
                     {{/if}}
 
                     {{#if user}}
+                        <li>
+                            <a href="/cart" class="{{#if (eq active 'cart')}}active{{/if}}">
+                                Корзина
+                                {{#if cartCount}}
+                                    <span class="cart-count">({{cartCount}})</span>
+                                {{/if}}
+                            </a>
+                        </li>
                         <li><a href="/auth/logout">Выйти ({{user.name}})</a></li>
                     {{else}}
                         <li><a href="/auth/login" class="{{#if (eq active 'login')}}active{{/if}}">Вход</a></li>
+                        <li><a href="/auth/register" class="{{#if (eq active 'register')}}active{{/if}}">Регистрация</a></li>
                     {{/if}}
                 </ul>
             </nav>
@@ -48,17 +57,35 @@
     </header>
 
     <main class="container">
+        {{#if success}}
+            <div class="alert alert-success">
+                {{success}}
+            </div>
+        {{/if}}
+        {{#if error}}
+            <div class="alert alert-error">
+                {{error}}
+            </div>
+        {{/if}}
+        
         {{{body}}}
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; {{currentYear}} CompTech</p>
+            <p>&copy; {{currentYear}} CompTech. Все права защищены.</p>
+            <div class="footer-links">
+                <a href="/about">О нас</a>
+                <a href="/contacts">Контакты</a>
+                <a href="/terms">Условия использования</a>
+            </div>
         </div>
     </footer>
 
     {{#if js}}
-    <script src="/javascripts/{{js}}.js"></script>
+        <script src="/javascripts/{{js}}.js"></script>
     {{/if}}
+    
+    <script src="/javascripts/scripts.js"></script>
 </body>
 </html>

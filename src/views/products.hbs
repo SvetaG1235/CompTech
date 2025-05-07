@@ -23,10 +23,12 @@
                   </div>
                 </div>
                 
-                <button class="btn btn--cart" 
+                <button class="btn btn--cart add-to-cart" 
                         data-id="{{this.id}}"
+                        data-name="{{this.name}}"
+                        data-price="{{this.price}}"
                         {{#unless this.stock}}disabled{{/unless}}>
-                  {{#if this.stock}}В корзину{{else}}Недоступно{{/if}}
+                  {{#if this.stock}}Добавить в корзину{{else}}Недоступно{{/if}}
                 </button>
               </div>
             </div>

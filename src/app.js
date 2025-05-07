@@ -13,6 +13,8 @@ import authRouter from './routes/AuthRoutes.js';
 import consultationRouter from './routes/ConsultationRoutes.js';
 import masterRouter from './routes/MasterRoutes.js';
 import orderRouter from './routes/OrderRoutes.js';
+import cartRoutes from './routes/CartRoutes.js';
+import CartService from './services/CartService.js';
 import repairRouter from './routes/RepairRoutes.js';
 import productRouter from './routes/ProductRoutes.js';
 import homeRouter from './routes/HomeRoutes.js';
@@ -64,6 +66,10 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+app.use((req, res, next) => {
+  res.locals.CartService = CartService;
+  next();
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -85,6 +91,7 @@ app.use('/products', productRouter);
 app.use('/auth', authRouter);
 app.use('/master', masterRouter);
 app.use('/orders', orderRouter);
+app.use('/cart', cartRoutes);
 app.use('/consultation', consultationRouter)
 app.use('/repair', repairRouter);
 app.use('/products', productRouter);

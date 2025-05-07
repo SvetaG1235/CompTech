@@ -1,8 +1,10 @@
-// Обработка навигации без перезагрузки страницы
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Обработчик для всех ссылок в навигации
-    document.querySelectorAll('nav a').forEach(link => {
+    document.querySelectorAll('nav a:not([data-no-ajax])').forEach(link => {
         link.addEventListener('click', function(e) {
+    
+            if (this.hasAttribute('data-no-ajax')) return;
+            
             e.preventDefault();
             const href = this.getAttribute('href');
             loadPage(href);
@@ -11,24 +13,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Обработчик для кнопки "Назад"
     window.addEventListener('popstate', function() {
         loadPage(window.location.pathname);
         updateActiveLink(window.location.pathname);
     });
-
-    // Загрузка начальной страницы
     if (window.location.pathname !== '/') {
         loadPage(window.location.pathname);
         updateActiveLink(window.location.pathname);
     }
 
-    // Обработка форм
+   
     document.addEventListener('submit', function(e) {
-        if (e.target.matches('form')) {
+        const form = e.target;
+        
+
+        if (form.matches('form[data-ajax]')) {
             e.preventDefault();
-            handleFormSubmit(e.target);
+            handleFormSubmit(form);
         }
+        
+    
     });
 });
 
@@ -49,6 +53,8 @@ async function loadPage(url) {
         
     } catch (error) {
         console.error('Error loading page:', error);
+
+        window.location.href = url;
     }
 }
 
@@ -61,14 +67,42 @@ function updateActiveLink(url) {
     });
 }
 
-function handleFormSubmit(form) {
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+async function handleFormSubmit(form) {
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Ошибка сервера');
+        
+        const result = await response.json();
+        
     
-    // Здесь можно добавить AJAX-отправку формы
-    console.log('Form submitted:', data);
+        if (result.success) {
+            showNotification('Форма отправлена! Мы свяжемся с вами в ближайшее время.', 'success');
+            form.reset();
+        } else {
+            showNotification(result.message || 'Ошибка отправки', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Form submit error:', error);
+        showNotification('Произошла ошибка при отправке', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
     
-    // Временное уведомление
-    alert('Форма отправлена! Мы свяжемся с вами в ближайшее время.');
-    form.reset();
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
