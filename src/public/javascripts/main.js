@@ -1,8 +1,8 @@
-
+// Основная навигация и обработка форм
 document.addEventListener('DOMContentLoaded', function() {
+    // Обработка навигации
     document.querySelectorAll('nav a:not([data-no-ajax])').forEach(link => {
         link.addEventListener('click', function(e) {
-    
             if (this.hasAttribute('data-no-ajax')) return;
             
             e.preventDefault();
@@ -13,29 +13,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Обработка кнопки "Назад"
     window.addEventListener('popstate', function() {
         loadPage(window.location.pathname);
         updateActiveLink(window.location.pathname);
     });
+
+    // Загрузка начальной страницы
     if (window.location.pathname !== '/') {
         loadPage(window.location.pathname);
         updateActiveLink(window.location.pathname);
     }
 
-   
+    // Обработка форм (исключая формы корзины)
     document.addEventListener('submit', function(e) {
         const form = e.target;
         
-
+        if (form.closest('.cart-item') || form.action.includes('/cart/')) {
+            return;
+        }
+        
         if (form.matches('form[data-ajax]')) {
             e.preventDefault();
             handleFormSubmit(form);
         }
-        
-    
     });
 });
 
+// Общие функции
 async function loadPage(url) {
     try {
         const response = await fetch(url, {
@@ -51,9 +56,11 @@ async function loadPage(url) {
         document.querySelector('main').innerHTML = doc.querySelector('main').innerHTML;
         document.title = doc.title;
         
+        // Повторно инициализируем скрипты после загрузки контента
+        initCartScript();
+        
     } catch (error) {
         console.error('Error loading page:', error);
-
         window.location.href = url;
     }
 }
@@ -82,7 +89,6 @@ async function handleFormSubmit(form) {
         
         const result = await response.json();
         
-    
         if (result.success) {
             showNotification('Форма отправлена! Мы свяжемся с вами в ближайшее время.', 'success');
             form.reset();
@@ -106,3 +112,13 @@ function showNotification(message, type) {
         notification.remove();
     }, 3000);
 }
+
+// Инициализация скрипта корзины после загрузки контента
+function initCartScript() {
+    const script = document.createElement('script');
+    script.src = '/javascripts/cart.js';
+    document.body.appendChild(script);
+}
+
+// Первоначальная инициализация
+initCartScript();

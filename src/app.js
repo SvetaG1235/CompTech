@@ -63,7 +63,7 @@ app.use(cookieParser());
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }
 }));
 app.use((req, res, next) => {

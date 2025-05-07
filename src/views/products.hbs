@@ -38,3 +38,115 @@
     {{/each}}
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик для кнопок "Добавить в корзину"
+    document.addEventListener('click', async function(e) {
+        // Проверяем, что кликнули по кнопке или её содержимому
+        const button = e.target.closest('.add-to-cart');
+        if (!button) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const productId = button.dataset.id;
+        const productName = button.dataset.name;
+        const productPrice = button.dataset.price;
+        
+        console.log('Adding to cart:', {productId, productName, productPrice});
+        
+        // Блокируем кнопку на время обработки
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = 'Добавляем...';
+        
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1
+                })
+            });
+            
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('Response data:', result);
+            
+            if (!result.success) {
+                throw new Error(result.error || 'Ошибка сервера');
+            }
+            
+            // Обновляем счетчик в корзине
+            updateCartCounter(result.count);
+            
+            // Показываем уведомление
+            showToast('Товар добавлен в корзину');
+            
+            // Меняем вид кнопки
+            button.classList.add('btn--in-cart');
+            button.textContent = '✓ В корзине';
+            
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast(error.message || 'Не удалось добавить товар', 'error');
+            button.textContent = originalText;
+        } finally {
+            setTimeout(() => {
+                button.disabled = false;
+            }, 2000);
+        }
+    });
+    
+    // Функция обновления счетчика корзины
+    function updateCartCounter(count) {
+        const counters = document.querySelectorAll('.cart-counter');
+        counters.forEach(counter => {
+            counter.textContent = count;
+        });
+    }
+    
+    // Функция показа уведомлений
+    function showToast(message, type = 'success') {
+        // Удаляем предыдущие уведомления
+        document.querySelectorAll('.toast').forEach(el => el.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast--${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('toast--fade-out');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    // Инициализация счетчика при загрузке
+    function initCartCounter() {
+        fetch('/cart/count')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => updateCartCounter(data.count))
+            .catch(error => {
+                console.error('Error fetching cart count:', error);
+            });
+    }
+    
+    initCartCounter();
+});
+</script>
