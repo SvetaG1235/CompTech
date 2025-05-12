@@ -2,12 +2,25 @@ import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
 
 const Order = sequelizeDB.define('Order', {
-  address: {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: Sequelize.INTEGER,
+    allowNull: true
+  },
+  name: {
     type: Sequelize.STRING,
     allowNull: false
   },
   phone: {
     type: Sequelize.STRING,
+    allowNull: false
+  },
+  address: {
+    type: Sequelize.TEXT,
     allowNull: false
   },
   total: {
@@ -16,28 +29,25 @@ const Order = sequelizeDB.define('Order', {
   },
   status: {
     type: Sequelize.STRING,
-    defaultValue: 'pending'
+    defaultValue: 'processing'
   }
 }, {
   tableName: 'orders',
   timestamps: true,
-  underscored: true 
+  underscored: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
-
 
 Order.associate = function(models) {
   Order.belongsTo(models.User, {
-    foreignKey: 'userId',
+    foreignKey: 'user_id',
     as: 'user'
   });
-  
-  Order.belongsToMany(models.Product, {
-    through: models.OrderItem,
-    foreignKey: 'orderId',
-    otherKey: 'productId',
-    as: 'products'
+  Order.hasMany(models.OrderItem, {
+    foreignKey: 'order_id',
+    as: 'items'
   });
 };
-
 
 export default Order;

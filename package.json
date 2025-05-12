@@ -16,6 +16,7 @@
     "express": "^5.1.0",
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.1",
+    "express-sessions": "^1.0.6",
     "hbs": "^4.2.0",
     "morgan": "^1.10.0",
     "node": "^23.11.0",

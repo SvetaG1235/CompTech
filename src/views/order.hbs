@@ -1,6 +1,6 @@
-<h1>Оформление заказа</h1>
-
-<form class="order-form" method="POST" action="/orders">
+<form class="order-form" id="checkout-form" method="POST">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    
     <div class="form-group">
         <label for="name">Ваше имя:</label>
         <input type="text" id="name" name="name" value="{{user.name}}" required>
@@ -17,18 +17,58 @@
     </div>
     
     <div class="form-group">
-        <label>Товары в заказе:</label>
-        <ul class="order-items">
-            {{#each cartItems}}
+        <h2>Товары в заказе:</h2>
+        <ul>
+            {{#each cart.items}}
             <li>
-                {{this.name}} - {{this.quantity}} × {{this.price}} ₽
-                <input type="hidden" name="products[]" value="{{this.id}}">
-                <input type="hidden" name="quantities[]" value="{{this.quantity}}">
+                {{this.quantity}} × {{this.name}} - {{formatPrice this.price}} ₽
+                <span class="item-total">{{formatPrice (multiply this.price this.quantity)}} ₽</span>
             </li>
             {{/each}}
         </ul>
-        <p class="total">Итого: {{total}} ₽</p>
+        <h3>Итого: {{formatPrice cart.total}} ₽</h3>
     </div>
     
     <button type="submit" class="btn btn-submit">Подтвердить заказ</button>
 </form>
+
+<script>
+document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Оформляем...';
+    
+    try {
+        const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value,
+            _csrf: document.querySelector('[name="_csrf"]').value
+        };
+
+        const response = await fetch('/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'CSRF-Token': formData._csrf
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Ошибка при оформлении заказа');
+        }
+
+        window.location.href = `/orders/${result.orderId}`;
+    } catch (error) {
+        console.error('Order error:', error);
+        alert(error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Подтвердить заказ';
+    }
+});
+</script>

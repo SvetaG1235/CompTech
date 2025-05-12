@@ -1,12 +1,15 @@
 import express from 'express';
-import CartController from '../controllers/CartController.js';
+import cartController from '../controllers/CartController.js';
+import CartService from '../services/CartService.js';
 
 const router = express.Router();
 
-router.get('/', CartController.getCart);
-router.get('/count', CartController.getCartCount);
-router.post('/add/:productId', CartController.addToCart);
-router.post('/update/:productId', CartController.updateCartItem);
-router.post('/remove/:productId', CartController.removeFromCart);
+router.get('/', cartController.getCart);
+router.post('/add', cartController.addToCart);
+router.post('/remove/:productId', cartController.removeFromCart);
+router.get('/count', (req, res) => {
+    const count = CartService.getCartCount(req.session);
+    res.json({ success: true, count });
+});
 
 export default router;
