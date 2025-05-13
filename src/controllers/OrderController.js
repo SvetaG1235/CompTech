@@ -1,90 +1,88 @@
-import OrderService from '../services/OrderService.js';
-import CartService from '../services/CartService.js';
+// src/controllers/OrderController.js
+
+import db from '../models/index.js';
+const { Order, OrderItem } = db;
 
 class OrderController {
-    async showNewOrderForm(req, res) {
-        try {
-            if (!req.session.cart?.items?.length) {
-                return res.redirect('/cart');
-            }
+  async showNewOrderForm(req, res) {
+    try {
+      if (!req.session.cart?.items?.length) {
+        return res.redirect('/cart');
+      }
 
-            const cart = {
-                items: req.session.cart.items,
-                total: CartService.calculateTotal(req.session.cart)
-            };
-
-            res.render('order', {
-                title: 'Оформление заказа',
-                cart,
-                user: req.session.user || {},
-                csrfToken: req.csrfToken()
-            });
-        } catch (error) {
-            console.error('Order form error:', error);
-            res.status(500).render('error', {
-                title: 'Ошибка',
-                message: 'Не удалось загрузить форму заказа'
-            });
-        }
+      res.render('order', {
+        title: 'Оформление заказа',
+        cart: req.session.cart
+      });
+    } catch (error) {
+      console.error('Ошибка при открытии формы заказа:', error);
+      res.status(500).render('error');
     }
+  }
 
-    async createOrder(req, res) {
-        try {
-            if (!req.session.cart?.items?.length) {
-                return res.status(400).json({ error: 'Корзина пуста' });
-            }
+  async createOrder(req, res) {
+    try {
+      const { name, phone, address } = req.body;
 
-            const { name, phone, address } = req.body;
-            
-            if (!name || !phone || !address) {
-                return res.status(400).json({ error: 'Все поля обязательны' });
-            }
+      if (!name || !phone || !address) {
+        return res.status(400).render('order', {
+          title: 'Ошибка',
+          error: 'Все поля обязательны',
+          cart: req.session.cart
+        });
+      }
 
-            const order = await OrderService.createOrder({
-                userId: req.session.user?.id,
-                name,
-                phone,
-                address,
-                cartItems: req.session.cart.items
-            });
+      const order = await Order.create({
+        userId: req.session.user?.id,
+        name,
+        phone,
+        address,
+        total: req.session.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      });
 
-            CartService.clearCart(req.session);
+      const items = req.session.cart.items.map(item => ({
+        orderId: order.id,
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }));
 
-            return res.json({ 
-                success: true,
-                orderId: order.id
-            });
-        } catch (error) {
-            console.error('Create order error:', error);
-            return res.status(500).json({ 
-                success: false,
-                error: error.message || 'Не удалось оформить заказ'
-            });
-        }
+      await OrderItem.bulkCreate(items);
+
+      req.session.cart = { items: [] };
+
+      res.redirect(`/orders/${order.id}`);
+    } catch (error) {
+      console.error('Ошибка создания заказа:', error);
+      res.status(500).render('error', {
+        title: 'Ошибка',
+        message: 'Не удалось создать заказ'
+      });
     }
+  }
 
-    async getOrderDetails(req, res) {
-        try {
-            const order = await OrderService.getOrderDetails(req.params.id);
-            
-            if (!order) {
-                return res.status(404).render('404', {
-                    title: 'Заказ не найден'
-                });
-            }
+  async getOrderDetails(req, res) {
+    try {
+      const order = await Order.findByPk(req.params.id);
 
-            res.render('order-details', {
-                title: `Заказ #${order.id}`,
-                order
-            });
-        } catch (error) {
-            console.error('Order details error:', error);
-            res.status(500).render('error', {
-                title: 'Ошибка',
-                message: 'Не удалось загрузить детали заказа'
-            });
-        }
+      if (!order) {
+        return res.status(404).render('404', {
+          title: 'Заказ не найден'
+        });
+      }
+
+      res.render('order-details', {
+        title: `Заказ #${order.id}`,
+        order
+      });
+    } catch (error) {
+      console.error('Ошибка получения данных о заказе:', error);
+      res.status(500).render('error', {
+        title: 'Ошибка',
+        message: 'Не удалось получить данные о заказе'
+      });
     }
+  }
 }
 
 export default new OrderController();

@@ -6,7 +6,6 @@ import logger from 'morgan';
 import session from 'express-session';
 import { create } from 'express-handlebars';
 import db from './db.js';
-import { syncModels } from './models/index.js';
 
 import ProductService from './services/ProductService.js';
 import authRouter from './routes/AuthRoutes.js';
@@ -43,9 +42,7 @@ const hbs = create({
     multiply: (a, b) => a * b,
     calculateTotal: function(cart) {
       if (!cart || !cart.items) return 0;
-      return cart.items.reduce((total, item) => {
-        return total + (item.price * item.quantity);
-      }, 0);
+      return cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
     },
     formatPrice: (price) => {
       if (isNaN(price)) return '0.00';
@@ -62,11 +59,14 @@ const hbs = create({
   }
 });
 
-syncModels();
+// Импорт syncModels из index.js
+import { syncModels } from './models/index.js';
+
+await syncModels(); // Синхронизация моделей
 
 // 2. Middleware в правильном порядке
 app.use(logger('dev'));
-app.use(express.json()); // Должен быть перед session
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
@@ -81,7 +81,7 @@ app.use((req, res, next) => {
   if (!req.session.cart) {
     req.session.cart = { items: [] }; // Всегда используем объект с items
   }
-  
+
   res.locals.user = req.session.user;
   res.locals.currentYear = new Date().getFullYear();
   res.locals.active = req.path.split('/')[1] || 'home';
@@ -119,9 +119,9 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('error', { 
+  res.status(500).render('error', {
     title: 'Ошибка сервера',
-    message: err.message 
+    message: err.message
   });
 });
 

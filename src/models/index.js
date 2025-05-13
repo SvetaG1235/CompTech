@@ -1,63 +1,34 @@
-import sequelize from '../db.js';
-import User from './UserModel.js';
-import Product from './ProductsModel.js';
-import Consultation from './Consultation.js';
-import MasterRequest from './MasterRequest.js';
-import RepairRequest from './RepairRequestModel.js';
-import Order from './OrdersModel.js';
-import OrderItem from './OrderItem.js';
+// src/models/index.js
 
-// Определяем функцию setupAssociations
-function setupAssociations() {
-  // User associations
-  User.hasMany(Consultation, { foreignKey: 'userId', as: 'consultations' });
-  Consultation.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Sequelize from 'sequelize';
+import sequelizeDB from '../db.js';
 
-  User.hasMany(MasterRequest, { foreignKey: 'clientId', as: 'clientRequests' });
-  User.hasMany(MasterRequest, { foreignKey: 'masterId', as: 'assignedRequests' });
-  MasterRequest.belongsTo(User, { foreignKey: 'clientId', as: 'client' });
-  MasterRequest.belongsTo(User, { foreignKey: 'masterId', as: 'master' });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  User.hasMany(RepairRequest, { foreignKey: 'userId', as: 'repairRequests' });
-  RepairRequest.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+const db = {};
 
-  User.hasMany(Order, { foreignKey: 'userId', as: 'orders' });
-  Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+const modelFiles = fs.readdirSync(__dirname).filter(file => file !== 'index.js');
 
-  // Product and Order associations
-  Order.belongsToMany(Product, {
-    through: OrderItem,
-    foreignKey: 'orderId',
-    otherKey: 'productId',
-    as: 'products'
-  });
+for (const file of modelFiles) {
+  const filePath = path.join(__dirname, file);
+  const fileURL = new URL(`file://${filePath}`);
 
-  Product.belongsToMany(Order, {
-    through: OrderItem,
-    foreignKey: 'productId',
-    otherKey: 'orderId',
-    as: 'orders'
-  });
+  const model = await import(fileURL);
+  const modelFunction = model.default;
+
+  const modelDef = new modelFunction(sequelizeDB, Sequelize.DataTypes);
+  db[modelDef.name] = modelDef;
 }
 
-async function syncModels() {
-  try {
-    await setupAssociations();
-    await sequelize.sync({ force: false, alter: false });
-    console.log('All models synced successfully');
-  } catch (error) {
-    console.error('Error syncing models:', error);
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
   }
-}
+});
 
-export {
-  sequelize,
-  User,
-  Product,
-  Consultation,
-  MasterRequest,
-  RepairRequest,
-  Order,
-  OrderItem,
-  syncModels
-};
+// ❗ Экспорт по умолчанию — это объект db
+export default db;

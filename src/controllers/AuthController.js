@@ -1,5 +1,9 @@
-import { User } from '../models/index.js';
+// src/controllers/AuthController.js
+
+import db from '../models/index.js';
 import bcrypt from 'bcrypt';
+
+const { User } = db;
 
 class AuthController {
   showLogin(req, res) {
@@ -8,6 +12,7 @@ class AuthController {
       error: req.query.error 
     });
   }
+
   async login(req, res) {
     try {
       const { email, password } = req.body;
@@ -29,10 +34,11 @@ class AuthController {
       }
 
       req.session.user = user;
-      
+
       if (user.role === 'admin') {
         return res.redirect('/admin/dashboard');
       }
+
       res.redirect('/');
     } catch (error) {
       console.error('Login error:', error);
@@ -59,7 +65,7 @@ class AuthController {
   async register(req, res) {
     try {
       const { name, email, password, phone } = req.body;
-    
+
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         return res.render('register', {
@@ -69,7 +75,7 @@ class AuthController {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      
+
       await User.create({
         name,
         email,
@@ -77,7 +83,7 @@ class AuthController {
         phone,
         role: 'user'
       });
-      
+
       res.redirect('/auth/login?success=Регистрация прошла успешно');
     } catch (error) {
       console.error('Registration error:', error);

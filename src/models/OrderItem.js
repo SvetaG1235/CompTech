@@ -1,3 +1,5 @@
+// src/models/OrderItem.js
+
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
 
@@ -19,10 +21,13 @@ const OrderItem = sequelizeDB.define('OrderItem', {
 
 OrderItem.associate = function(models) {
   OrderItem.belongsTo(models.Order, {
-    foreignKey: 'order_id'
+    foreignKey: 'order_id',
+    as: 'order'
   });
+
   OrderItem.belongsTo(models.Product, {
-    foreignKey: 'product_id'
+    foreignKey: 'product_id',
+    as: 'product'
   });
 };
 

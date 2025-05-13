@@ -1,13 +1,15 @@
+// src/models/OrdersModel.js
+
 import { Sequelize } from 'sequelize';
 import sequelizeDB from '../db.js';
 
 const Order = sequelizeDB.define('Order', {
   id: {
     type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
+    primaryKey: true
   },
-  user_id: {
+  userId: {
     type: Sequelize.INTEGER,
     allowNull: true
   },
@@ -33,19 +35,17 @@ const Order = sequelizeDB.define('Order', {
   }
 }, {
   tableName: 'orders',
-  timestamps: true,
-  underscored: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  timestamps: true
 });
 
 Order.associate = function(models) {
   Order.belongsTo(models.User, {
-    foreignKey: 'user_id',
+    foreignKey: 'userId',
     as: 'user'
   });
+
   Order.hasMany(models.OrderItem, {
-    foreignKey: 'order_id',
+    foreignKey: 'orderId',
     as: 'items'
   });
 };
